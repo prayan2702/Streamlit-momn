@@ -136,7 +136,7 @@ apply_filter = st.checkbox("Apply Filters", value=True)
 if U == 'N750':
     file_path = 'https://raw.githubusercontent.com/prayan2702/Streamlit-momn/refs/heads/main/ind_niftytotalmarket_list.csv'
 else:
-    file_path = 'https://raw.githubusercontent.com/prayan2702/Streamlit-momn/refs/heads/main/ind_{U.lower()}_list.csv'
+    file_path = 'https://raw.githubusercontent.com/prayan2702/Streamlit-momn/refs/heads/main/ind_{U.lower()}list.csv'
 
 df = pd.read_csv(file_path)
 df['Yahoo_Symbol'] = df.Symbol + '.NS'
