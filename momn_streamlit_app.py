@@ -129,8 +129,8 @@ dates = {
 st.write("Date Range: Start Date: ", dates['startDate'])
 st.write("End Date: ", dates['endDate'])
 
-# Filters
-apply_filter = st.checkbox("Apply Filters", value=True)
+# # Filters
+# apply_filter = st.checkbox("Apply Filters", value=True)
 
 # Read index file based on selected universe
 if U == 'N750':
@@ -206,7 +206,7 @@ if start_button:
     data3M = data20Y.loc[dates['date3M']:].copy()
     data1M = data20Y.loc[dates['date1M']:].copy()
 
-    #******************
+    #*******************************************************
 
     # Calculate metrics for dfStats (e.g., 1 month momentum, 3-month volatility, etc.)
     dfStats = pd.DataFrame(index=symbol)
