@@ -134,9 +134,9 @@ apply_filter = st.checkbox("Apply Filters", value=True)
 
 # Read index file based on selected universe
 if U == 'N750':
-    file_path = f"E:\\Market Course Investing\\Momentum Python\\UploadIndexCSV\\ind_niftytotalmarket_list.csv"
+    file_path = ind_niftytotalmarket_list.csv
 else:
-    file_path = f"E:\\Market Course Investing\\Momentum Python\\UploadIndexCSV\\ind_{U.lower()}list.csv"
+    file_path = ind_{U.lower()}list.csv
 
 df = pd.read_csv(file_path)
 df['Yahoo_Symbol'] = df.Symbol + '.NS'
