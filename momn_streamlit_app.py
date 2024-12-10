@@ -22,7 +22,6 @@ def getMaskDailyChange(data) :
  m2 = getDailyReturns(data).eq(-np.inf) #for -inf value
  return(getDailyReturns(data).mask(m1, df[~m1].max(), axis=1).mask(m2, df[~m2].min(), axis=1).bfill(axis = 1))
 
-
 def getStdev(data):
 	return(np.std(getMaskDailyChange(data)*100))
 
