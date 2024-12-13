@@ -213,10 +213,13 @@ if start_button:
         "No more than 10 circuits of 5% in the last 3 months (circuit5 <= 10)",
     ]
 
-    # Display the applied filters
-    st.markdown("### Applied Filters:")
-    for i, filter_desc in enumerate(filters, start=1):
-        st.markdown(f"**{i}. {filter_desc}**")
+   # Sidebar section
+    with st.sidebar:
+        st.header("Menu")
+        with st.expander("Applied Filters", expanded=False):
+            st.write("The following filters are applied:")
+            for i, filter_desc in enumerate(filters, start=1):
+                st.write(f"{i}. {filter_desc}")
 #**************************************************
     # Handle failed symbols (if any)
     if failed_symbols:
