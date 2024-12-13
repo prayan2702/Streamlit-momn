@@ -586,7 +586,7 @@ if start_button:
 
 #**********************************************************
 
-    # Assuming 'dfStats' has 'Rank' as the index and 'final_momentum' filter is applied
+     # Assuming 'dfStats' has 'Rank' as the index and 'final_momentum' filter is applied
     filtered = dfStats[dfStats['final_momentum']].sort_values('avgSharpe', ascending=False)
 
     # Get the top 75 ranks (using the index for Rank)
@@ -594,46 +594,57 @@ if start_button:
 
     # Fetch the current portfolio from the published CSV (Nifty50 Value)
     portfolio_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS4HDgiell4n1kd08OnlzOQobfPzeDtVyWJ8gETFlYbz27qhOmfqKZOoIXZItRQEq5ANATYIcZJm0gk/pub?output=csv"
-    portfolio_data = pd.read_csv(portfolio_url)
 
-    # Check if 'Current Portfolio' column exists in the portfolio CSV
-    if 'Current Portfolio' not in portfolio_data.columns:
-        st.error("Column 'Current Portfolio' not found in the portfolio data.")
-    else:
-        # Assuming the portfolio has a 'Current Portfolio' column for holdings
-        current_portfolio_tickers = portfolio_data['Current Portfolio']
+    # Start the spinner to indicate the process is running
+    with st.spinner("Portfolio Rebalancing... Please wait..."):
+        # Simulate the delay of fetching and processing data (remove in actual code)
+        #time.sleep(5)  # Replace this with your actual portfolio rebalancing code
 
-        # Find entry stocks (stocks in top 75 that are not in the current portfolio)
-        entry_stocks = top_75_tickers[~top_75_tickers.isin(current_portfolio_tickers)]
+        # Read portfolio data
+        portfolio_data = pd.read_csv(portfolio_url)
 
-        # Find exit stocks (stocks in the current portfolio that are not in the top 75)
-        exit_stocks = current_portfolio_tickers[~current_portfolio_tickers.isin(top_75_tickers)]
+        # Check if 'Current Portfolio' column exists in the portfolio CSV
+        if 'Current Portfolio' not in portfolio_data.columns:
+            st.error("Column 'Current Portfolio' not found in the portfolio data.")
+        else:
+            # Assuming the portfolio has a 'Current Portfolio' column for holdings
+            current_portfolio_tickers = portfolio_data['Current Portfolio']
 
-        # Display results using Streamlit
-        st.subheader("Portfolio Rebalancing")
+            # Find entry stocks (stocks in top 75 that are not in the current portfolio)
+            entry_stocks = top_75_tickers[~top_75_tickers.isin(current_portfolio_tickers)]
 
-        # Limit the number of buy (entry) stocks to match the number of sell (exit) stocks
-        num_sells = len(exit_stocks)
-        entry_stocks = entry_stocks.head(num_sells)  # Limit Buy tickers to the number of Sell tickers
+            # Find exit stocks (stocks in the current portfolio that are not in the top 75)
+            exit_stocks = current_portfolio_tickers[~current_portfolio_tickers.isin(top_75_tickers)]
 
-        # If there are more sells than buys, fill the remaining buys with None or NaN
-        if len(entry_stocks) < num_sells:
-            # Use pd.concat to add None values to entry_stocks
-            entry_stocks = pd.concat([entry_stocks, pd.Series([None] * (num_sells - len(entry_stocks)))])
+            # Display results using Streamlit
+            st.subheader("Portfolio Rebalancing")
 
-        # Create rebalance table
-        rebalance_table = pd.DataFrame({
-            'S.No.': range(1, num_sells + 1),
-            'Sell Stocks': exit_stocks.tolist(),
-            'Buy Stocks': entry_stocks.tolist()
-        })
+            # Limit the number of buy (entry) stocks to match the number of sell (exit) stocks
+            num_sells = len(exit_stocks)
+            entry_stocks = entry_stocks.head(num_sells)  # Limit Buy tickers to the number of Sell tickers
 
-        # Remove rows where both 'Sell' and 'Buy' are None, but keep rows where only one is None
-        rebalance_table = rebalance_table[~((rebalance_table['Sell Stocks'].isna()) & (rebalance_table['Buy Stocks'].isna()))]
+            # If there are more sells than buys, fill the remaining buys with None or NaN
+            if len(entry_stocks) < num_sells:
+                # Use pd.concat to add None values to entry_stocks
+                entry_stocks = pd.concat([entry_stocks, pd.Series([None] * (num_sells - len(entry_stocks)))])
 
-        # Set 'S.No.' as the index
-        rebalance_table.set_index('S.No.', inplace=True)
+            # Create rebalance table
+            rebalance_table = pd.DataFrame({
+                'S.No.': range(1, num_sells + 1),
+                'Sell Stocks': exit_stocks.tolist(),
+                'Buy Stocks': entry_stocks.tolist()
+            })
 
-        # Display rebalance table
-        st.dataframe(rebalance_table)
+            # Remove rows where both 'Sell' and 'Buy' are None, but keep rows where only one is None
+            rebalance_table = rebalance_table[
+                ~((rebalance_table['Sell Stocks'].isna()) & (rebalance_table['Buy Stocks'].isna()))]
+
+            # Set 'S.No.' as the index
+            rebalance_table.set_index('S.No.', inplace=True)
+
+            # Display rebalance table
+            st.dataframe(rebalance_table)
+
+    # After the spinner ends, show success message
+    st.success("Portfolio Rebalancing completed!")
 #*****************************************************
