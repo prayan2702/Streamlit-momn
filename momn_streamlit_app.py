@@ -598,7 +598,6 @@ if start_button:
     # Start the spinner to indicate the process is running
     with st.spinner("Portfolio Rebalancing... Please wait..."):
         # Simulate the delay of fetching and processing data (remove in actual code)
-        #time.sleep(5)  # Replace this with your actual portfolio rebalancing code
 
         # Read portfolio data
         portfolio_data = pd.read_csv(portfolio_url)
