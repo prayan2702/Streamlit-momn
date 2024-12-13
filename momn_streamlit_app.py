@@ -321,6 +321,9 @@ if start_button:
         # Freeze the top row
         ws.freeze_panes = 'A2'
 
+	# Define the bold font style
+        bold_font = Font(bold=True)
+
         # Format headers
         header_fill = PatternFill(start_color="00008B", end_color="00008B", fill_type="solid")  # Dark blue
         header_font = Font(bold=True, color="FFFFFF")
@@ -359,39 +362,50 @@ if start_button:
             'Rank': headers.index('Rank') + 1
         }
 
-        # Apply conditional formatting
+        
+            
+            # Apply conditional formatting
         for row in range(2, ws.max_row + 1):
             condition_failed = False
             if (volume := ws.cell(row=row, column=col_indices['volm_cr']).value) is not None and volume < 1:
                 ws.cell(row=row, column=col_indices['volm_cr']).fill = no_condition_fill
+                ws.cell(row=row, column=col_indices['volm_cr']).font = bold_font
                 condition_failed = True
             if (close := ws.cell(row=row, column=col_indices['Close']).value) is not None and close <= ws.cell(row=row,
                                                                                                                column=
                                                                                                                col_indices[
                                                                                                                    'dma200d']).value:
                 ws.cell(row=row, column=col_indices['Close']).fill = no_condition_fill
+                ws.cell(row=row, column=col_indices['Close']).font = bold_font
                 condition_failed = True
             if (away_ath := ws.cell(row=row, column=col_indices['AWAY_ATH']).value) is not None and away_ath <= -25:
                 ws.cell(row=row, column=col_indices['AWAY_ATH']).fill = no_condition_fill
+                ws.cell(row=row, column=col_indices['AWAY_ATH']).font = bold_font
                 condition_failed = True
             if (roc12M := ws.cell(row=row, column=col_indices['roc12M']).value) is not None and roc12M <= 6.5:
                 ws.cell(row=row, column=col_indices['roc12M']).fill = no_condition_fill
+                ws.cell(row=row, column=col_indices['roc12M']).font = bold_font
                 condition_failed = True
             if (circuit := ws.cell(row=row, column=col_indices['circuit']).value) is not None and circuit >= 20:
                 ws.cell(row=row, column=col_indices['circuit']).fill = no_condition_fill
+                ws.cell(row=row, column=col_indices['circuit']).font = bold_font
                 condition_failed = True
             if (roc1M := ws.cell(row=row, column=col_indices['roc1M']).value) is not None and roc12M and roc12M != 0:
                 if roc1M / roc12M * 100 >= 50:
                     ws.cell(row=row, column=col_indices['roc1M']).fill = no_condition_fill
+                    ws.cell(row=row, column=col_indices['roc1M']).font = bold_font
                     condition_failed = True
             if close is not None and close <= 30:
                 ws.cell(row=row, column=col_indices['Close']).fill = no_condition_fill
+                ws.cell(row=row, column=col_indices['Close']).font = bold_font
                 condition_failed = True
             if (circuit5 := ws.cell(row=row, column=col_indices['circuit5']).value) is not None and circuit5 > 10:
                 ws.cell(row=row, column=col_indices['circuit5']).fill = no_condition_fill
+                ws.cell(row=row, column=col_indices['circuit5']).font = bold_font
                 condition_failed = True
             if roc12M is not None and roc12M > 1000:
                 ws.cell(row=row, column=col_indices['roc12M']).fill = no_condition_fill
+                ws.cell(row=row, column=col_indices['roc12M']).font = bold_font
                 condition_failed = True
             if condition_failed:
                 ws.cell(row=row, column=col_indices['Ticker']).fill = no_condition_fill
