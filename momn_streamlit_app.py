@@ -99,7 +99,7 @@ def getBeta(dfNifty, data12M):
 	return beta
 
 # Streamlit Layout
-st.title("Stock Ranking and Filtering App")
+st.title("Momentum Ranking App")
 
 #To suppress future warnings about using ffill method in pct_change()
 import warnings
