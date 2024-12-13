@@ -125,8 +125,15 @@ dates = {
     'date1M': datetime.strptime(dt2, '%Y-%m-%d') - relativedelta(months=1),
 }
 
-st.write("Date Range: Start Date: ", dates['startDate'])
-st.write("End Date: ", dates['endDate'])
+st.markdown(
+    f"""
+    <p>Date Range:</p>
+    <p>Start Date: <span style="font-size:16px; font-weight:bold;">{dates['startDate']}</span></p>
+    <p>End Date: <span style="font-size:16px; font-weight:bold;">{dates['endDate']}</span></p>
+    """,
+    unsafe_allow_html=True
+)
+
 
 # # Filters
 # apply_filter = st.checkbox("Apply Filters", value=True)
