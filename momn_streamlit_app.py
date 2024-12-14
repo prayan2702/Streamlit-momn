@@ -150,6 +150,8 @@ st.write(f"End Date: **{dates['endDate'].strftime('%d-%m-%Y')}**")
 # Read index file based on selected universe
 if U == 'N750':
     file_path = 'https://raw.githubusercontent.com/prayan2702/Streamlit-momn/refs/heads/main/ind_niftytotalmarket_list.csv'
+elif U == 'AllNSE':
+    file_path = f'https://raw.githubusercontent.com/prayan2702/Streamlit-momn/refs/heads/main/NSE_EQ_ALL.csv'
 else:
     file_path = f'https://raw.githubusercontent.com/prayan2702/Streamlit-momn/refs/heads/main/ind_{U.lower()}list.csv'
 
