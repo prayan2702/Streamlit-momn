@@ -213,8 +213,7 @@ if start_button:
     status_text.text("Download complete!")
 
  #**********************************
-
-import datetime as dt
+ import datetime as dt
 
     # Function to calculate next rebalance date
     def get_next_rebalance_date(current_date):
@@ -278,6 +277,7 @@ import datetime as dt
             st.write("The following filters are applied:")
             for i, filter_desc in enumerate(filters, start=1):
                 st.write(f"{i}. {filter_desc}")
+
 #**************************************************
     # Handle failed symbols (if any)
     if failed_symbols:
