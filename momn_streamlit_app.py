@@ -5,6 +5,7 @@ import yfinance as yf
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 import time
+import datetime as dt
 import openpyxl
 from openpyxl.styles import PatternFill, Font, Alignment
 from openpyxl.styles.borders import Border, Side
@@ -212,10 +213,8 @@ if start_button:
     progress_bar.progress(1.0)
     status_text.text("Download complete!")
 
- #**********************************
- import datetime as dt
-
-    # Function to calculate next rebalance date
+#**********************************
+# Function to calculate next rebalance date
     def get_next_rebalance_date(current_date):
         current_date = pd.Timestamp(current_date)
 
