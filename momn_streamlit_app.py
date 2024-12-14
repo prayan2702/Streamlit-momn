@@ -271,7 +271,7 @@ if start_button:
         st.header("Menu")
 
         # Display the rebalance date
-        st.info(f"Index Rebalance Date: **{formatted_rebalance_date}**.")
+        st.info(f"Next NSE Rebalance Date: **{formatted_rebalance_date}**.")
         with st.expander("Applied Filters", expanded=False):
             st.write("The following filters are applied:")
             for i, filter_desc in enumerate(filters, start=1):
