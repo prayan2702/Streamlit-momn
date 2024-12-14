@@ -214,9 +214,50 @@ if start_button:
 
  #**********************************
 
+     import datetime as dt
+
+    # Function to calculate next rebalance date
+    def get_next_rebalance_date(current_date):
+        current_date = pd.Timestamp(current_date)
+
+        # List of months for rebalance: March and September
+        rebalance_months = [3, 9]
+
+        rebalance_dates = []
+        for month in rebalance_months:
+            # Get last day of the month
+            last_day = pd.Timestamp(current_date.year, month, 1) + pd.offsets.MonthEnd(0)
+            # Adjust if it's a weekend
+            while last_day.weekday() >= 5:  # Saturday (5) or Sunday (6)
+                last_day -= dt.timedelta(days=1)
+            rebalance_dates.append(last_day)
+
+        # Check for next rebalance date
+        for date in sorted(rebalance_dates):
+            if date > current_date:
+                return date.date()  # Return as datetime.date
+
+        # If no date is valid in current year, calculate for next year
+        next_year_rebalance = []
+        for month in rebalance_months:
+            last_day = pd.Timestamp(current_date.year + 1, month, 1) + pd.offsets.MonthEnd(0)
+            while last_day.weekday() >= 5:
+                last_day -= dt.timedelta(days=1)
+            next_year_rebalance.append(last_day)
+
+        return sorted(next_year_rebalance)[0].date()  # Return as datetime.date
+
+
+    # Test date
+    current_date = dt.date.today()
+    next_rebalance_date = get_next_rebalance_date(current_date)
+
+    # Format the date as DD-MM-YYYY
+    formatted_rebalance_date = next_rebalance_date.strftime("%d-%m-%Y")
+
     # List of applied filters
     filters = [
-        "Avg Volume(1 year) greater than 1 crore (volm_cr > 1)",
+        "Volume greater than 1 crore (volm_cr > 1)",
         "Closing price above 200-day moving average (Close > dma200d)",
         "12-month rate of change (ROC) greater than 6.5% (roc12M > 6.5)",
         "Number of circuit hits in a year less than 20 (circuit < 20)",
@@ -227,9 +268,12 @@ if start_button:
         "No more than 10 circuits of 5% in the last 3 months (circuit5 <= 10)",
     ]
 
-   # Sidebar section
+    # Sidebar section
     with st.sidebar:
         st.header("Menu")
+
+        # Display the rebalance date
+        st.info(f"Index Rebalance Date: **{formatted_rebalance_date}**.")
         with st.expander("Applied Filters", expanded=False):
             st.write("The following filters are applied:")
             for i, filter_desc in enumerate(filters, start=1):
