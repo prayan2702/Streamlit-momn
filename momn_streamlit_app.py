@@ -313,6 +313,10 @@ if start_button:
     dfStats['Ticker'] = dfStats['Ticker'].astype(str)
     dfStats['Ticker'] = dfStats['Ticker'].str.replace('.NS', '', case=False, regex=False)
 
+    # Handle Nan and inf values to zero(0) for ranking
+    dfStats['avgSharpe'] = dfStats['avgSharpe'].replace([np.inf, -np.inf], np.nan).fillna(0)
+    dfStats['sharpe12M'] = dfStats['sharpe12M'].replace([np.inf, -np.inf], np.nan).fillna(0)
+
     # Add Rank column based on 'avgSharpe' and sort by Rank
     dfStats['Rank'] = dfStats[ranking_method].rank(ascending=False,method='first').astype(int)
     dfStats = dfStats.sort_values('Rank').set_index('Rank')  # Set 'Rank' as index
@@ -340,7 +344,7 @@ if start_button:
 #*************************************
 
     # Filter stocks meeting all conditions
-    filtered = dfStats[dfStats['final_momentum']].sort_values('avgSharpe', ascending=False)
+    filtered = dfStats[dfStats['final_momentum']].sort_values(ranking_method, ascending=False)
 
     st.write("Filtered Data with Rank:")
     st.write(filtered)
