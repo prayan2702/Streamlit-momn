@@ -266,9 +266,11 @@ if start_button:
 
         # Display the rebalance date
         st.info(f"Index Rebalance Date: **{formatted_rebalance_date}**.")
-        st.write("### Applied Filters:")
-        for i, filter_desc in enumerate(filters, start=1):
+        with st.expander("Applied Filters", expanded=False):
+            st.write("The following conditions are applied:")
+            for i, filter_desc in enumerate(filters, start=1):
                 st.write(f"{i}. {filter_desc}")
+
 
 #**************************************************
     # Handle failed symbols (if any)
