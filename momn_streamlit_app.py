@@ -105,6 +105,13 @@ st.title("Momentum Ranking App")
 import warnings
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
+# Add a dropdown for selecting the ranking method
+ranking_method = st.selectbox(
+    "Select Ranking Method",
+    options=["sharpe12M", "avgSharpe"],
+    index=0  # Default to "avgSharpe"
+)
+
 
 # Select Universe with default value as 'N750'
 universe = ['Nifty50', 'Nifty100', 'Nifty200', 'Nifty250', 'Nifty500', 'N750', 'AllNSE']
@@ -135,8 +142,6 @@ st.markdown(
 )
 
 
-# # Filters
-# apply_filter = st.checkbox("Apply Filters", value=True)
 
 # Read index file based on selected universe
 if U == 'N750':
@@ -244,28 +249,40 @@ if start_button:
 
     # At least 12 months of trading is required
     data12M = data20Y.loc[dates['date12M']:].copy()
+    data9M = data20Y.loc[dates['date9M']:].copy()
+    data6M = data20Y.loc[dates['date6M']:].copy()
     data3M = data20Y.loc[dates['date3M']:].copy()
     data1M = data20Y.loc[dates['date1M']:].copy()
 
-    #*******************************************************
+    #******************
 
     # Calculate metrics for dfStats (e.g., 1 month momentum, 3-month volatility, etc.)
     dfStats = pd.DataFrame(index=symbol)
     dfStats['Close'] = round(data12M.iloc[-1], 2)
     data12M_Temp = data12M.fillna(0)
     dfStats['dma200d'] = round(data12M_Temp.rolling(window=200).mean().iloc[-1], 2)  # 200-day DMA
+
     # Rate of change
 
     dfStats['roc12M'] = getAbsReturns(data12M)
+    dfStats['roc9M'] = getAbsReturns(data9M)
+    dfStats['roc6M'] = getAbsReturns(data6M)
+    dfStats['roc3M'] = getAbsReturns(data3M)
     dfStats['roc1M'] = getAbsReturns(data1M)
 
     # Volatility
 
-    dfStats['volatility12M'] = getVolatility(getDailyReturns(data12M))
+    dfStats['vol12M'] = getVolatility(getDailyReturns(data12M))
+    dfStats['vol9M'] = getVolatility(getDailyReturns(data9M))
+    dfStats['vol6M'] = getVolatility(getDailyReturns(data6M))
+    dfStats['vol3M'] = getVolatility(getDailyReturns(data3M))
 
-    dfStats['sharpe12MRoC'] = getSharpeRoC(dfStats['roc12M'], dfStats['volatility12M'])
+    dfStats['sharpe12M'] = getSharpeRoC(dfStats['roc12M'], dfStats['vol12M'])
+    dfStats['sharpe9M'] = getSharpeRoC(dfStats['roc9M'], dfStats['vol9M'])
+    dfStats['sharpe6M'] = getSharpeRoC(dfStats['roc6M'], dfStats['vol6M'])
+    dfStats['sharpe3M'] = getSharpeRoC(dfStats['roc3M'], dfStats['vol3M'])
 
-    dfStats['avgSharpe'] = dfStats["sharpe12MRoC"].fillna(0) #1st Factor
+    dfStats['avgSharpe'] = (dfStats[["sharpe12M", "sharpe6M", "sharpe3M"]].mean(axis=1)).round(2)  # 1st Factor
 
     dfStats['volm_cr'] = (getMedianVolume(volume12M) / 1e7).round(2)
 
@@ -297,7 +314,7 @@ if start_button:
     dfStats['Ticker'] = dfStats['Ticker'].str.replace('.NS', '', case=False, regex=False)
 
     # Add Rank column based on 'avgSharpe' and sort by Rank
-    dfStats['Rank'] = dfStats['avgSharpe'].rank(ascending=False,method='first').astype(int)
+    dfStats['Rank'] = dfStats[ranking_method].rank(ascending=False,method='first').astype(int)
     dfStats = dfStats.sort_values('Rank').set_index('Rank')  # Set 'Rank' as index
 
     # Show both filtered and unfiltered data in Streamlit
@@ -564,7 +581,7 @@ if start_button:
 
 #********************************************************
     # Format the filename with the lookback date, universe, and other parameters
-    excel_file = f"{selected_date.strftime('%Y-%m-%d')}_{U}_12M_lookback.xlsx"
+    excel_file = f"{selected_date.strftime('%Y-%m-%d')}_{U}_{ranking_method}_lookback.xlsx"
 
     # Save filtered data to Excel
     with pd.ExcelWriter(excel_file, engine="openpyxl") as writer:
