@@ -654,8 +654,8 @@ if start_button:
 
 #**********************************************************
 
-     # Assuming 'dfStats' has 'Rank' as the index and 'final_momentum' filter is applied
-    filtered = dfStats[dfStats['final_momentum']].sort_values('avgSharpe', ascending=False)
+    # Assuming 'dfStats' has 'Rank' as the index and 'final_momentum' filter is applied
+    filtered = dfStats[dfStats['final_momentum']].sort_values('Rank', ascending=True)
 
     # Get the top 75 ranks (using the index for Rank)
     top_75_tickers = filtered[filtered.index <= 75]['Ticker']
