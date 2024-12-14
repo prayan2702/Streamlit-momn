@@ -325,7 +325,7 @@ if start_button:
     # Filter stocks meeting all conditions
     filtered = dfStats[dfStats['final_momentum']].sort_values('avgSharpe', ascending=False)
 
-    st.write("Filtered Data with Rank (final_momentum=True):")
+    st.write("Filtered Data with Rank:")
     st.write(filtered)
 
 #***********************************************************
