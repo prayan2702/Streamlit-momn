@@ -202,7 +202,7 @@ if start_button:
 
     # List of applied filters
     filters = [
-        "Volume greater than 1 crore (volm_cr > 1)",
+        "Avg Volume(1 year) greater than 1 crore (volm_cr > 1)",
         "Closing price above 200-day moving average (Close > dma200d)",
         "12-month rate of change (ROC) greater than 6.5% (roc12M > 6.5)",
         "Number of circuit hits in a year less than 20 (circuit < 20)",
