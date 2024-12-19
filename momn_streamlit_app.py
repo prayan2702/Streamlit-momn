@@ -388,9 +388,9 @@ if start_button:
     #*******************************************************
     # Sort by primary(ranking_method) and secondary columns(roc12M) (if no-ties then rank by primary column, otherwise use primary and then secondary to break tie)
     # Conditional logic for sorting
-    if ranking_method in ["avgSharpe", "avg_All", "sharpe12M"]:
+    if ranking_method in ["avg_All", "sharpe12M"]:
        dfStats = dfStats.sort_values(by=[ranking_method, 'roc12M'], ascending=[False, False])
-    elif ranking_method == "sharpe3M":
+    elif ranking_method in ["avgSharpe", "sharpe3M"]:
        dfStats = dfStats.sort_values(by=[ranking_method, 'roc3M'], ascending=[False, False])
 
     # Assign unique ranks based on the sorted order
