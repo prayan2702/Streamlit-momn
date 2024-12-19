@@ -370,7 +370,7 @@ if start_button:
     # dfStats['Rank'] = dfStats[ranking_method].rank(ascending=False,method='first').astype(int)
     # dfStats = dfStats.sort_values('Rank').set_index('Rank')  # Set 'Rank' as index
     #*******************************************************
-    # Sort by primary and secondary columns
+    # Sort by primary(ranking_method) and secondary columns(roc12M) (if no-ties then rank by primary column, otherwise use primary and then secondary to break tie)
     dfStats = dfStats.sort_values(by=[ranking_method, 'roc12M'], ascending=[False, False])
 
     # Assign unique ranks based on the sorted order
