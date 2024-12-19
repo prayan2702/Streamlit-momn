@@ -367,8 +367,25 @@ if start_button:
     dfStats['sharpe12M'] = dfStats['sharpe12M'].replace([np.inf, -np.inf], np.nan).fillna(0)
 
     # Add Rank column based on 'avgSharpe' and sort by Rank
-    dfStats['Rank'] = dfStats[ranking_method].rank(ascending=False,method='first').astype(int)
-    dfStats = dfStats.sort_values('Rank').set_index('Rank')  # Set 'Rank' as index
+    # dfStats['Rank'] = dfStats[ranking_method].rank(ascending=False,method='first').astype(int)
+    # dfStats = dfStats.sort_values('Rank').set_index('Rank')  # Set 'Rank' as index
+
+    #*********************************************************
+    # Add Rank column based on 'avgSharpe' and sort by Rank
+    # Scale the column to increase precision
+scale_factor = 1e6  # Scale to six decimal places or higher
+dfStats['Scaled'] = dfStats[ranking_method] * scale_factor
+
+# Rank using the scaled column
+dfStats['Rank'] = dfStats['Scaled'].rank(ascending=False, method='first').astype(int)
+
+# Sort and set index
+dfStats = dfStats.sort_values('Rank').set_index('Rank')
+
+# Drop the scaled column (optional)
+dfStats.drop(columns=['Scaled'], inplace=True)
+
+#*******************************************
 
     # Show both filtered and unfiltered data in Streamlit
     st.write("Unfiltered Data with Rank:")
