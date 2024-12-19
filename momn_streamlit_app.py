@@ -109,9 +109,10 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 # Dropdown options with display labels and corresponding values
 ranking_options = {
     "sharpe12M": "sharpe12M",
-    "avgSharpe 12M/6M/3M": "avgSharpe"
+    "sharpe3M":"sharpe3M",
+    "avgSharpe 12M/6M/3M": "avgSharpe",
+    "avgSharpe 12M/9M/6M/3M": "avg_All"
 }
-
 # Display dropdown for ranking method selection
 ranking_method_display = st.selectbox(
     "Select Ranking Method",
@@ -331,7 +332,18 @@ if start_button:
     dfStats['sharpe6M'] = getSharpeRoC(dfStats['roc6M'], dfStats['vol6M'])
     dfStats['sharpe3M'] = getSharpeRoC(dfStats['roc3M'], dfStats['vol3M'])
 
-    dfStats['avgSharpe'] = (dfStats[["sharpe12M", "sharpe6M", "sharpe3M"]].mean(axis=1)).round(2)  # 1st Factor
+    #dfStats['avgSharpe'] = (dfStats[["sharpe12M", "sharpe6M", "sharpe3M"]].mean(axis=1)).round(2)  # 1st Factor
+    #****************************************
+    # Columns for different ranking methods
+    columns_avgSharpe = ["sharpe12M", "sharpe6M", "sharpe3M"]
+    columns_avgAll = ["sharpe12M", "sharpe9M", "sharpe6M", "sharpe3M"]
+
+    # Conditional logic based on ranking_method
+    if ranking_method == "avgSharpe":
+        dfStats['avgSharpe'] = dfStats[columns_avgSharpe].mean(axis=1).round(2)
+    elif ranking_method == "avg_All":
+        dfStats['avg_All'] = dfStats[columns_avgAll].mean(axis=1).round(2)
+    #******************************************
 
     dfStats['volm_cr'] = (getMedianVolume(volume12M) / 1e7).round(2)
 
@@ -363,8 +375,12 @@ if start_button:
     dfStats['Ticker'] = dfStats['Ticker'].str.replace('.NS', '', case=False, regex=False)
 
     # Handle Nan and inf values to zero(0) for ranking
-    dfStats['avgSharpe'] = dfStats['avgSharpe'].replace([np.inf, -np.inf], np.nan).fillna(0)
+    if ranking_method == "avgSharpe":
+        dfStats['avgSharpe'] = dfStats['avgSharpe'].replace([np.inf, -np.inf], np.nan).fillna(0)
+    elif ranking_method == "avg_All":
+        dfStats['avg_All'] = dfStats['avg_All'].replace([np.inf, -np.inf], np.nan).fillna(0)
     dfStats['sharpe12M'] = dfStats['sharpe12M'].replace([np.inf, -np.inf], np.nan).fillna(0)
+    dfStats['sharpe3M'] = dfStats['sharpe3M'].replace([np.inf, -np.inf], np.nan).fillna(0)
 
     # Add Rank column based on 'avgSharpe' and sort by Rank
     # dfStats['Rank'] = dfStats[ranking_method].rank(ascending=False,method='first').astype(int)
