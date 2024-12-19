@@ -367,9 +367,18 @@ if start_button:
     dfStats['sharpe12M'] = dfStats['sharpe12M'].replace([np.inf, -np.inf], np.nan).fillna(0)
 
     # Add Rank column based on 'avgSharpe' and sort by Rank
-    dfStats['Rank'] = dfStats[ranking_method].rank(ascending=False,method='first').astype(int)
-    dfStats = dfStats.sort_values('Rank').set_index('Rank')  # Set 'Rank' as index
+    # dfStats['Rank'] = dfStats[ranking_method].rank(ascending=False,method='first').astype(int)
+    # dfStats = dfStats.sort_values('Rank').set_index('Rank')  # Set 'Rank' as index
+    #*******************************************************
+    # Sort by primary and secondary columns
+    dfStats = dfStats.sort_values(by=[ranking_method, 'roc12M'], ascending=[False, False])
 
+    # Assign unique ranks based on the sorted order
+    dfStats['Rank'] = range(1, len(dfStats) + 1)
+
+    # Set 'Rank' as the index
+    dfStats = dfStats.set_index('Rank')
+    #**********************************************************
     
 
     # Show both filtered and unfiltered data in Streamlit
