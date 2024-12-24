@@ -717,7 +717,7 @@ if start_button:
             exit_stocks = current_portfolio_tickers[~current_portfolio_tickers.isin(top_75_tickers)]
 
             # Display results using Streamlit
-            st.subheader("Portfolio Rebalancing")
+            st.write("Portfolio Rebalancing:")
 
             # Limit the number of buy (entry) stocks to match the number of sell (exit) stocks
             num_sells = len(exit_stocks)
