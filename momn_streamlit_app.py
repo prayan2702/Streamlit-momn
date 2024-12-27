@@ -402,7 +402,7 @@ if start_button:
     
 
     # Show both filtered and unfiltered data in Streamlit
-    st.write("Unfiltered Data with Rank:")
+    st.info("Unfiltered Data with Rank:")
     st.write(dfStats)
 
     # Apply conditions
