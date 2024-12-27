@@ -402,7 +402,7 @@ if start_button:
     
 
     # Show both filtered and unfiltered data in Streamlit
-    st.info("Unfiltered Data with Rank:")
+    st.info("Unfiltered Data:")
     st.write(dfStats)
 
     # Apply conditions
@@ -426,7 +426,7 @@ if start_button:
     # Filter stocks meeting all conditions
     filtered = dfStats[dfStats['final_momentum']].sort_values('Rank', ascending=True)
 
-    st.info("Filtered Data with Rank:")
+    st.info("Filtered Data:")
     st.write(filtered)
 
 #***********************************************************
