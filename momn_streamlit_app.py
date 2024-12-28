@@ -257,7 +257,7 @@ if start_button:
         "12-month rate of change (ROC) greater than 6.5% (roc12M > 6.5)",
         "Number of circuit hits in a year less than 20 (circuit < 20)",
         "Stock is within 25% of its all-time high (AWAY_ATH > -25)",
-        "12-month return less than 1000% (roc12M < 1000)",
+        "12-month return less than 10x (roc12M < 1000)",
         "1-month ROC to 12-month ROC ratio less than 50% (roc1M / roc12M * 100 < 50)",
         "Closing price above ₹30 (Close > 30)",
         "No more than 10 circuits of 5% in the last 3 months (circuit5 <= 10)",
