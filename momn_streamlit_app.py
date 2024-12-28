@@ -108,10 +108,10 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 
 # Dropdown options with display labels and corresponding values
 ranking_options = {
-    "sharpe12M": "sharpe12M",
-    "sharpe3M":"sharpe3M",
-    "avgSharpe 12M/6M/3M": "avgSharpe",
-    "avgSharpe 12M/9M/6M/3M": "avg_All"
+    "Sharpe12M": "sharpe12M",
+    "Sharpe3M":"sharpe3M",
+    "AvgSharpe 12M/6M/3M": "avgSharpe",
+    "AvgSharpe 12M/9M/6M/3M": "avg_All"
 }
 # Display dropdown for ranking method selection
 ranking_method_display = st.selectbox(
