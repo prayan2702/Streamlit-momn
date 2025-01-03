@@ -700,6 +700,9 @@ if start_button:
     with st.spinner("Portfolio Rebalancing... Please wait..."):
         # Simulate the delay of fetching and processing data (remove in actual code)
 
+	# Load the data into a Pandas DataFrame
+        @st.cache_data(ttl=0)  # Caching har baar bypass hoga
+
         # Read portfolio data
         portfolio_data = pd.read_csv(portfolio_url)
 
