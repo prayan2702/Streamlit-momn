@@ -694,9 +694,7 @@ if start_button:
     top_75_tickers = filtered[filtered.index <= 75]['Ticker']
 
     # Fetch the current portfolio from the published CSV (Nifty50 Value)
-    portfolio_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS4HDgiell4n1kd08OnlzOQobfPzeDtVyWJ8gETFlYbz27qhOmfqKZOoIXZItRQEq5ANATYIcZJm0gk/pub?output=csv"
-    # Load the data into a Pandas DataFrame
-    @st.cache_data(ttl=0)  # Caching har baar bypass hoga	
+    portfolio_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS4HDgiell4n1kd08OnlzOQobfPzeDtVyWJ8gETFlYbz27qhOmfqKZOoIXZItRQEq5ANATYIcZJm0gk/pub?output=csv"	
 	
     # Start the spinner to indicate the process is running
     with st.spinner("Portfolio Rebalancing... Please wait..."):
