@@ -696,12 +696,13 @@ if start_button:
     # Fetch the current portfolio from the published CSV (Nifty50 Value)
     portfolio_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS4HDgiell4n1kd08OnlzOQobfPzeDtVyWJ8gETFlYbz27qhOmfqKZOoIXZItRQEq5ANATYIcZJm0gk/pub?output=csv"
 
+    # Load the data into a Pandas DataFrame
+    @st.cache_data(ttl=0)  # Caching har baar bypass hoga
+
+	
     # Start the spinner to indicate the process is running
     with st.spinner("Portfolio Rebalancing... Please wait..."):
         # Simulate the delay of fetching and processing data (remove in actual code)
-
-	# Load the data into a Pandas DataFrame
-        @st.cache_data(ttl=0)  # Caching har baar bypass hoga
 
         # Read portfolio data
         portfolio_data = pd.read_csv(portfolio_url)
