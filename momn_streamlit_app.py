@@ -11,6 +11,8 @@ from openpyxl.styles import PatternFill, Font, Alignment
 from openpyxl.styles.borders import Border, Side
 from openpyxl import load_workbook
 
+# Load the data into a Pandas DataFrame
+@st.cache_data(ttl=0)  # Caching har baar bypass hoga
 def getMedianVolume(data):
 	return(round(data.median(),0))
 
