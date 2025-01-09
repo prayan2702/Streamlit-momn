@@ -348,7 +348,7 @@ if start_button:
     elif ranking_method == "avg_All":
         dfStats['avg_All'] = dfStats[columns_avgAll].mean(axis=1).round(2)
     elif ranking_method == "avgSharpe9_6_3":  # New logic
-    dfStats['avgSharpe9_6_3'] = dfStats[columns_avgSharpe9_6_3].mean(axis=1).round(2)
+    	dfStats['avgSharpe9_6_3'] = dfStats[columns_avgSharpe9_6_3].mean(axis=1).round(2)
     #******************************************
 
     dfStats['volm_cr'] = (getMedianVolume(volume12M) / 1e7).round(2)
