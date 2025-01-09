@@ -110,6 +110,7 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 
 # Dropdown options with display labels and corresponding values
 ranking_options = {
+    "AvgSharpe 9M/6M/3M": "avgSharpe9_6_3",  # New method
     "Sharpe12M": "sharpe12M",
     "Sharpe3M":"sharpe3M",
     "AvgSharpe 12M/6M/3M": "avgSharpe",
@@ -339,12 +340,15 @@ if start_button:
     # Columns for different ranking methods
     columns_avgSharpe = ["sharpe12M", "sharpe6M", "sharpe3M"]
     columns_avgAll = ["sharpe12M", "sharpe9M", "sharpe6M", "sharpe3M"]
+    columns_avgSharpe9_6_3 = ["sharpe9M", "sharpe6M", "sharpe3M"]
 
     # Conditional logic based on ranking_method
     if ranking_method == "avgSharpe":
         dfStats['avgSharpe'] = dfStats[columns_avgSharpe].mean(axis=1).round(2)
     elif ranking_method == "avg_All":
         dfStats['avg_All'] = dfStats[columns_avgAll].mean(axis=1).round(2)
+    elif ranking_method == "avgSharpe9_6_3":  # New logic
+    dfStats['avgSharpe9_6_3'] = dfStats[columns_avgSharpe9_6_3].mean(axis=1).round(2)
     #******************************************
 
     dfStats['volm_cr'] = (getMedianVolume(volume12M) / 1e7).round(2)
@@ -381,6 +385,8 @@ if start_button:
         dfStats['avgSharpe'] = dfStats['avgSharpe'].replace([np.inf, -np.inf], np.nan).fillna(0)
     elif ranking_method == "avg_All":
         dfStats['avg_All'] = dfStats['avg_All'].replace([np.inf, -np.inf], np.nan).fillna(0)
+    elif ranking_method == "avgSharpe9_6_3":  # New handling
+    dfStats['avgSharpe9_6_3'] = dfStats['avgSharpe9_6_3'].replace([np.inf, -np.inf], np.nan).fillna(0)
     dfStats['sharpe12M'] = dfStats['sharpe12M'].replace([np.inf, -np.inf], np.nan).fillna(0)
     dfStats['sharpe3M'] = dfStats['sharpe3M'].replace([np.inf, -np.inf], np.nan).fillna(0)
 
@@ -394,6 +400,8 @@ if start_button:
        dfStats = dfStats.sort_values(by=[ranking_method, 'roc12M'], ascending=[False, False])
     elif ranking_method in ["avgSharpe", "sharpe3M"]:
        dfStats = dfStats.sort_values(by=[ranking_method, 'roc3M'], ascending=[False, False])
+    elif ranking_method == "avgSharpe9_6_3":  # New sorting rule
+    dfStats = dfStats.sort_values(by=[ranking_method, 'roc6M'], ascending=[False, False])
 
     # Assign unique ranks based on the sorted order
     dfStats['Rank'] = range(1, len(dfStats) + 1)
