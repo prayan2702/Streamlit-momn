@@ -386,7 +386,7 @@ if start_button:
     elif ranking_method == "avg_All":
         dfStats['avg_All'] = dfStats['avg_All'].replace([np.inf, -np.inf], np.nan).fillna(0)
     elif ranking_method == "avgSharpe9_6_3":  # New handling
-    dfStats['avgSharpe9_6_3'] = dfStats['avgSharpe9_6_3'].replace([np.inf, -np.inf], np.nan).fillna(0)
+    	dfStats['avgSharpe9_6_3'] = dfStats['avgSharpe9_6_3'].replace([np.inf, -np.inf], np.nan).fillna(0)
     dfStats['sharpe12M'] = dfStats['sharpe12M'].replace([np.inf, -np.inf], np.nan).fillna(0)
     dfStats['sharpe3M'] = dfStats['sharpe3M'].replace([np.inf, -np.inf], np.nan).fillna(0)
 
@@ -401,7 +401,7 @@ if start_button:
     elif ranking_method in ["avgSharpe", "sharpe3M"]:
        dfStats = dfStats.sort_values(by=[ranking_method, 'roc3M'], ascending=[False, False])
     elif ranking_method == "avgSharpe9_6_3":  # New sorting rule
-    dfStats = dfStats.sort_values(by=[ranking_method, 'roc6M'], ascending=[False, False])
+    	dfStats = dfStats.sort_values(by=[ranking_method, 'roc6M'], ascending=[False, False])
 
     # Assign unique ranks based on the sorted order
     dfStats['Rank'] = range(1, len(dfStats) + 1)
