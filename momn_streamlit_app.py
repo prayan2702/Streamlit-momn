@@ -10,8 +10,6 @@ import openpyxl
 from openpyxl.styles import PatternFill, Font, Alignment
 from openpyxl.styles.borders import Border, Side
 from openpyxl import load_workbook
-import logging
-import urllib3
 
 # Load the data into a Pandas DataFrame
 @st.cache_data(ttl=0)  # Caching har baar bypass hoga
@@ -161,14 +159,6 @@ elif U == 'AllNSE':
 else:
     file_path = f'https://raw.githubusercontent.com/prayan2702/Streamlit-momn/refs/heads/main/ind_{U.lower()}list.csv'
 
-# Suppress specific loggers related to yfinance and urllib3
-logging.getLogger('yfinance').setLevel(logging.CRITICAL)  # Suppress yfinance errors
-logging.getLogger('urllib3').setLevel(logging.CRITICAL)  # Suppress urllib3 warnings
-
-# Disable warnings from yfinance directly
-yf.pdr_override()
-
-
 df = pd.read_csv(file_path)
 df['Yahoo_Symbol'] = df.Symbol + '.NS'
 df = df.set_index('Yahoo_Symbol')
@@ -184,54 +174,45 @@ if start_button:
     high = []
     volume = []
 
-
-     # Create progress bar and status placeholders
+    # Create a progress bar
     progress_bar = st.progress(0)
-    status_text = st.empty()
-    error_container = st.container()  # Container to dynamically display errors
+    status_text = st.empty()  # Placeholder for progress text
 
-    # Track the total number of stocks and initialize failed list
+    # Track the number of stocks downloaded
     total_symbols = len(symbol)
+    chunk_count = (total_symbols // CHUNK) + (1 if total_symbols % CHUNK != 0 else 0)
+
+    # Use a separate list to handle failed downloads
     failed_symbols = []
 
-    # Process symbols in chunks
-    for k in range(0, total_symbols, CHUNK):
+    for k in range(0, len(symbol), CHUNK):
         _symlist = symbol[k:k + CHUNK]
 
-        # Try downloading data for each chunk
+        # Try downloading data for each chunk of symbols
         try:
             _x = yf.download(_symlist, start=dates['startDate'], progress=False)
             close.append(_x['Close'])
             high.append(_x['High'])
             volume.append(_x['Close'] * _x['Volume'])
         except Exception as e:
-            # Capture the error message from `yfinance` and display on Streamlit
-            failed_symbols.extend(_symlist)
-            for ticker in _symlist:
-                try:
-                    # Attempt individual download to identify the specific ticker causing the issue
-                    yf.download(ticker, start=dates['startDate'], progress=False)
-                except Exception as ticker_error:
-                    with error_container:
-                        st.error(f"Error downloading data for {ticker}: {ticker_error}")
+            failed_symbols.extend(_symlist)  # Add failed symbols to the list
+            st.write(f"Failed to download data for: {', '.join(_symlist)}. Error: {e}")
 
-        # Update the progress bar and status text
+        # Update progress bar after each chunk
         progress = (k + CHUNK) / total_symbols
-        progress_bar.progress(min(progress, 1.0))  # Ensure progress stays within bounds
-        status_text.text(f"Downloading... {int(progress * 100)}%")
+        progress = min(max(progress, 0.0), 1.0)  #newly added for progress bar error
+        progress_bar.progress(progress)
 
-        time.sleep(0.5)  # Simulate processing delay
+        # Update status text with progress percentage
+        progress_percentage = int(progress * 100)
+        status_text.text(f"Downloading... {progress_percentage}%")
 
-    # Final update after download
+        time.sleep(0.5)
+
+        # After the download is complete, update the progress bar and text
     progress_bar.progress(1.0)
     status_text.text("Download complete!")
 
-    # Show summary of failed symbols, if any
-    if failed_symbols:
-        st.write("### Failed Symbols Summary")
-        st.write(", ".join(failed_symbols))
-    else:
-        st.success("All symbols downloaded successfully!")
 #**********************************
 # Function to calculate next rebalance date
     def get_next_rebalance_date(current_date):
@@ -778,4 +759,3 @@ if start_button:
     st.success("Portfolio Rebalancing completed!")
 
 #***************************************************************
-
