@@ -183,8 +183,7 @@ if start_button:
     high = []
     volume = []
 
-  
-   # Create progress bar and status placeholders
+  # Create progress bar and status placeholders
     progress_bar = st.progress(0)
     status_text = st.empty()
     error_container = st.container()  # Container to dynamically display errors
@@ -203,12 +202,11 @@ if start_button:
             close.append(_x['Close'])
             high.append(_x['High'])
             volume.append(_x['Close'] * _x['Volume'])
-            # streamlit_logger(f"Downloaded data for: {', '.join(_symlist)}")  # Log success
         except Exception as e:
-            failed_symbols.extend(_symlist)  # Add failed symbols
+            # Add failed symbols and log errors to the Streamlit UI
+            failed_symbols.extend(_symlist)
             with error_container:
-                # st.error(f"Failed to download data for: {', '.join(_symlist)}. Error: {e}")
-                  streamlit_logger(f"Error downloading data for: {', '.join(_symlist)} - {e}")  # Log error
+                st.error(f"Error downloading data for: {', '.join(_symlist)} - {e}")
 
         # Update the progress bar and status text
         progress = (k + CHUNK) / total_symbols
@@ -223,7 +221,7 @@ if start_button:
 
     # Show summary of failed symbols, if any
     if failed_symbols:
-        st.write("### Failed Symbols")
+        st.write("### Failed Symbols Summary")
         st.write(", ".join(failed_symbols))
     else:
         st.success("All symbols downloaded successfully!")
