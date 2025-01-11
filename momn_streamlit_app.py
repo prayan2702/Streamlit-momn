@@ -177,6 +177,7 @@ if start_button:
     # Create a progress bar
     progress_bar = st.progress(0)
     status_text = st.empty()  # Placeholder for progress text
+    error_container = st.empty()  # Placeholder for errors
 
     # Track the number of stocks downloaded
     total_symbols = len(symbol)
@@ -196,11 +197,12 @@ if start_button:
             volume.append(_x['Close'] * _x['Volume'])
         except Exception as e:
             failed_symbols.extend(_symlist)  # Add failed symbols to the list
-            st.write(f"Failed to download data for: {', '.join(_symlist)}. Error: {e}")
+            error_message = f"Failed to download data for: {', '.join(_symlist)}. Error: {e}"
+            st.error(error_message)  # Display error message on Streamlit page
 
         # Update progress bar after each chunk
         progress = (k + CHUNK) / total_symbols
-        progress = min(max(progress, 0.0), 1.0)  #newly added for progress bar error
+        progress = min(max(progress, 0.0), 1.0)  # Avoid errors for progress out of bounds
         progress_bar.progress(progress)
 
         # Update status text with progress percentage
@@ -209,10 +211,16 @@ if start_button:
 
         time.sleep(0.5)
 
-        # After the download is complete, update the progress bar and text
+    # After the download is complete, update the progress bar and text
     progress_bar.progress(1.0)
     status_text.text("Download complete!")
 
+    # Display failed symbols after the download process
+    if failed_symbols:
+        error_container.write(f"**Failed to download data for the following symbols:**")
+        error_container.write(", ".join(failed_symbols))
+    else:
+        error_container.write("All symbols downloaded successfully!")
 #**********************************
 # Function to calculate next rebalance date
     def get_next_rebalance_date(current_date):
