@@ -203,7 +203,7 @@ if start_button:
             close.append(_x['Close'])
             high.append(_x['High'])
             volume.append(_x['Close'] * _x['Volume'])
-            streamlit_logger(f"Downloaded data for: {', '.join(_symlist)}")  # Log success
+            # streamlit_logger(f"Downloaded data for: {', '.join(_symlist)}")  # Log success
         except Exception as e:
             failed_symbols.extend(_symlist)  # Add failed symbols
             with error_container:
