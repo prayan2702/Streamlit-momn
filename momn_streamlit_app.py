@@ -174,53 +174,48 @@ if start_button:
     high = []
     volume = []
 
-    # Create a progress bar
+  
+    # Create progress bar and status placeholders
     progress_bar = st.progress(0)
-    status_text = st.empty()  # Placeholder for progress text
-    error_container = st.empty()  # Placeholder for errors
+    status_text = st.empty()
+    error_container = st.container()  # Container to display errors dynamically
 
-    # Track the number of stocks downloaded
+    # Track the total number of stocks and initialize failed list
     total_symbols = len(symbol)
-    chunk_count = (total_symbols // CHUNK) + (1 if total_symbols % CHUNK != 0 else 0)
-
-    # Use a separate list to handle failed downloads
     failed_symbols = []
 
-    for k in range(0, len(symbol), CHUNK):
+    # Process symbols in chunks
+    for k in range(0, total_symbols, CHUNK):
         _symlist = symbol[k:k + CHUNK]
 
-        # Try downloading data for each chunk of symbols
+        # Try downloading data for each chunk
         try:
             _x = yf.download(_symlist, start=dates['startDate'], progress=False)
             close.append(_x['Close'])
             high.append(_x['High'])
             volume.append(_x['Close'] * _x['Volume'])
         except Exception as e:
-            failed_symbols.extend(_symlist)  # Add failed symbols to the list
-            error_message = f"Failed to download data for: {', '.join(_symlist)}. Error: {e}"
-            st.error(error_message)  # Display error message on Streamlit page
+            failed_symbols.extend(_symlist)  # Add failed symbols
+            with error_container:  # Dynamically display errors in the UI
+                st.error(f"Failed to download data for: {', '.join(_symlist)}. Error: {e}")
 
-        # Update progress bar after each chunk
+        # Update the progress bar and status text
         progress = (k + CHUNK) / total_symbols
-        progress = min(max(progress, 0.0), 1.0)  # Avoid errors for progress out of bounds
-        progress_bar.progress(progress)
+        progress_bar.progress(min(progress, 1.0))  # Ensure progress stays within bounds
+        status_text.text(f"Downloading... {int(progress * 100)}%")
 
-        # Update status text with progress percentage
-        progress_percentage = int(progress * 100)
-        status_text.text(f"Downloading... {progress_percentage}%")
+        time.sleep(0.5)  # Simulate processing delay
 
-        time.sleep(0.5)
-
-    # After the download is complete, update the progress bar and text
+    # Final update after download
     progress_bar.progress(1.0)
     status_text.text("Download complete!")
 
-    # Display failed symbols after the download process
+    # Show summary of failed symbols, if any
     if failed_symbols:
-        error_container.write(f"**Failed to download data for the following symbols:**")
-        error_container.write(", ".join(failed_symbols))
+        st.write("### Failed Symbols")
+        st.write(", ".join(failed_symbols))
     else:
-        error_container.write("All symbols downloaded successfully!")
+        st.success("All symbols downloaded successfully!")
 #**********************************
 # Function to calculate next rebalance date
     def get_next_rebalance_date(current_date):
