@@ -161,9 +161,13 @@ elif U == 'AllNSE':
 else:
     file_path = f'https://raw.githubusercontent.com/prayan2702/Streamlit-momn/refs/heads/main/ind_{U.lower()}list.csv'
 
-# Suppress yfinance and urllib3 internal logging
-logging.getLogger('yfinance').setLevel(logging.ERROR)
-logging.getLogger('urllib3').setLevel(logging.ERROR)
+# Suppress specific loggers related to yfinance and urllib3
+logging.getLogger('yfinance').setLevel(logging.CRITICAL)  # Suppress yfinance errors
+logging.getLogger('urllib3').setLevel(logging.CRITICAL)  # Suppress urllib3 warnings
+
+# Disable warnings from yfinance directly
+yf.pdr_override()
+
 
 df = pd.read_csv(file_path)
 df['Yahoo_Symbol'] = df.Symbol + '.NS'
