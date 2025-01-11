@@ -208,7 +208,7 @@ if start_button:
             failed_symbols.extend(_symlist)  # Add failed symbols
             with error_container:
                 # st.error(f"Failed to download data for: {', '.join(_symlist)}. Error: {e}")
-            streamlit_logger(f"Error downloading data for: {', '.join(_symlist)} - {e}")  # Log error
+                  streamlit_logger(f"Error downloading data for: {', '.join(_symlist)} - {e}")  # Log error
 
         # Update the progress bar and status text
         progress = (k + CHUNK) / total_symbols
