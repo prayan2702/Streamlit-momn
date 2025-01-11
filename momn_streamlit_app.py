@@ -11,6 +11,7 @@ from openpyxl.styles import PatternFill, Font, Alignment
 from openpyxl.styles.borders import Border, Side
 from openpyxl import load_workbook
 import logging
+import urllib3
 
 # Load the data into a Pandas DataFrame
 @st.cache_data(ttl=0)  # Caching har baar bypass hoga
@@ -160,8 +161,9 @@ elif U == 'AllNSE':
 else:
     file_path = f'https://raw.githubusercontent.com/prayan2702/Streamlit-momn/refs/heads/main/ind_{U.lower()}list.csv'
 
-# Suppress yfinance internal logging
+# Suppress yfinance and urllib3 internal logging
 logging.getLogger('yfinance').setLevel(logging.ERROR)
+logging.getLogger('urllib3').setLevel(logging.ERROR)
 
 df = pd.read_csv(file_path)
 df['Yahoo_Symbol'] = df.Symbol + '.NS'
@@ -179,7 +181,7 @@ if start_button:
     volume = []
 
 
-    # Create progress bar and status placeholders
+     # Create progress bar and status placeholders
     progress_bar = st.progress(0)
     status_text = st.empty()
     error_container = st.container()  # Container to dynamically display errors
