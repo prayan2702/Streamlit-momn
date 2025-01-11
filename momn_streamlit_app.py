@@ -160,13 +160,8 @@ elif U == 'AllNSE':
 else:
     file_path = f'https://raw.githubusercontent.com/prayan2702/Streamlit-momn/refs/heads/main/ind_{U.lower()}list.csv'
 
-# Set up logging to redirect to Streamlit UI
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger()
-
-# Redirect logs to Streamlit UI
-def streamlit_logger(message):
-    st.write(f"**LOG:** {message}")
+# Suppress yfinance internal logging
+logging.getLogger('yfinance').setLevel(logging.ERROR)
 
 df = pd.read_csv(file_path)
 df['Yahoo_Symbol'] = df.Symbol + '.NS'
