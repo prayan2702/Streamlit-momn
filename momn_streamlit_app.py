@@ -10,6 +10,7 @@ import openpyxl
 from openpyxl.styles import PatternFill, Font, Alignment
 from openpyxl.styles.borders import Border, Side
 from openpyxl import load_workbook
+import logging
 
 # Load the data into a Pandas DataFrame
 @st.cache_data(ttl=0)  # Caching har baar bypass hoga
@@ -159,6 +160,14 @@ elif U == 'AllNSE':
 else:
     file_path = f'https://raw.githubusercontent.com/prayan2702/Streamlit-momn/refs/heads/main/ind_{U.lower()}list.csv'
 
+# Set up logging to redirect to Streamlit UI
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger()
+
+# Redirect logs to Streamlit UI
+def streamlit_logger(message):
+    st.write(f"**LOG:** {message}")
+
 df = pd.read_csv(file_path)
 df['Yahoo_Symbol'] = df.Symbol + '.NS'
 df = df.set_index('Yahoo_Symbol')
@@ -175,10 +184,10 @@ if start_button:
     volume = []
 
   
-    # Create progress bar and status placeholders
+   # Create progress bar and status placeholders
     progress_bar = st.progress(0)
     status_text = st.empty()
-    error_container = st.container()  # Container to display errors dynamically
+    error_container = st.container()  # Container to dynamically display errors
 
     # Track the total number of stocks and initialize failed list
     total_symbols = len(symbol)
@@ -194,10 +203,12 @@ if start_button:
             close.append(_x['Close'])
             high.append(_x['High'])
             volume.append(_x['Close'] * _x['Volume'])
+            streamlit_logger(f"Downloaded data for: {', '.join(_symlist)}")  # Log success
         except Exception as e:
             failed_symbols.extend(_symlist)  # Add failed symbols
-            with error_container:  # Dynamically display errors in the UI
+            with error_container:
                 st.error(f"Failed to download data for: {', '.join(_symlist)}. Error: {e}")
+            streamlit_logger(f"Error downloading data for: {', '.join(_symlist)} - {e}")  # Log error
 
         # Update the progress bar and status text
         progress = (k + CHUNK) / total_symbols
