@@ -207,7 +207,7 @@ if start_button:
         except Exception as e:
             failed_symbols.extend(_symlist)  # Add failed symbols
             with error_container:
-                st.error(f"Failed to download data for: {', '.join(_symlist)}. Error: {e}")
+                # st.error(f"Failed to download data for: {', '.join(_symlist)}. Error: {e}")
             streamlit_logger(f"Error downloading data for: {', '.join(_symlist)} - {e}")  # Log error
 
         # Update the progress bar and status text
