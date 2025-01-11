@@ -183,7 +183,8 @@ if start_button:
     high = []
     volume = []
 
-  # Create progress bar and status placeholders
+
+    # Create progress bar and status placeholders
     progress_bar = st.progress(0)
     status_text = st.empty()
     error_container = st.container()  # Container to dynamically display errors
@@ -203,10 +204,15 @@ if start_button:
             high.append(_x['High'])
             volume.append(_x['Close'] * _x['Volume'])
         except Exception as e:
-            # Add failed symbols and log errors to the Streamlit UI
+            # Capture the error message from `yfinance` and display on Streamlit
             failed_symbols.extend(_symlist)
-            with error_container:
-                st.error(f"Error downloading data for: {', '.join(_symlist)} - {e}")
+            for ticker in _symlist:
+                try:
+                    # Attempt individual download to identify the specific ticker causing the issue
+                    yf.download(ticker, start=dates['startDate'], progress=False)
+                except Exception as ticker_error:
+                    with error_container:
+                        st.error(f"Error downloading data for {ticker}: {ticker_error}")
 
         # Update the progress bar and status text
         progress = (k + CHUNK) / total_symbols
