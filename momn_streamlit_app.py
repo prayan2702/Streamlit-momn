@@ -10,7 +10,6 @@ import openpyxl
 from openpyxl.styles import PatternFill, Font, Alignment
 from openpyxl.styles.borders import Border, Side
 from openpyxl import load_workbook
-from retry import retry
 from json.decoder import JSONDecodeError
 
 # Load the data into a Pandas DataFrame
@@ -169,9 +168,15 @@ symbol = list(df.index)
 # Add a button to start the process
 start_button = st.button("Start Data Download")
 
-@retry(exceptions=(Exception, JSONDecodeError), tries=3, delay=2, backoff=2)
-def download_chunk(symbols, start_date):
-    return yf.download(symbols, start=start_date, progress=False)
+def download_chunk_with_retries(symbols, start_date, max_retries=3, delay=2):
+    for attempt in range(max_retries):
+        try:
+            return yf.download(symbols, start=start_date, progress=False)
+        except (Exception, JSONDecodeError) as e:
+            if attempt < max_retries - 1:
+                time.sleep(delay)
+            else:
+                raise e
 
 if start_button:
     # Download data when the button is pressed
@@ -196,7 +201,7 @@ if start_button:
 
         # Try downloading data for each chunk of symbols
         try:
-            _x = download_chunk(_symlist, dates['startDate'])
+            _x = download_chunk_with_retries(_symlist, dates['startDate'])
             close.append(_x['Close'])
             high.append(_x['High'])
             volume.append(_x['Close'] * _x['Volume'])
