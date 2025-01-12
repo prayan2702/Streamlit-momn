@@ -10,6 +10,8 @@ import openpyxl
 from openpyxl.styles import PatternFill, Font, Alignment
 from openpyxl.styles.borders import Border, Side
 from openpyxl import load_workbook
+from retry import retry
+from json.decoder import JSONDecodeError
 
 # Load the data into a Pandas DataFrame
 @st.cache_data(ttl=0)  # Caching har baar bypass hoga
@@ -167,6 +169,10 @@ symbol = list(df.index)
 # Add a button to start the process
 start_button = st.button("Start Data Download")
 
+@retry(exceptions=(Exception, JSONDecodeError), tries=3, delay=2, backoff=2)
+def download_chunk(symbols, start_date):
+    return yf.download(symbols, start=start_date, progress=False)
+
 if start_button:
     # Download data when the button is pressed
     CHUNK = 50
@@ -190,17 +196,17 @@ if start_button:
 
         # Try downloading data for each chunk of symbols
         try:
-            _x = yf.download(_symlist, start=dates['startDate'], progress=False)
+            _x = download_chunk(_symlist, dates['startDate'])
             close.append(_x['Close'])
             high.append(_x['High'])
             volume.append(_x['Close'] * _x['Volume'])
-        except Exception as e:
+        except (Exception, JSONDecodeError) as e:
             failed_symbols.extend(_symlist)  # Add failed symbols to the list
             st.write(f"Failed to download data for: {', '.join(_symlist)}. Error: {e}")
 
         # Update progress bar after each chunk
         progress = (k + CHUNK) / total_symbols
-        progress = min(max(progress, 0.0), 1.0)  #newly added for progress bar error
+        progress = min(max(progress, 0.0), 1.0)  # Ensure progress is between 0 and 1
         progress_bar.progress(progress)
 
         # Update status text with progress percentage
@@ -209,9 +215,14 @@ if start_button:
 
         time.sleep(0.5)
 
-        # After the download is complete, update the progress bar and text
+    # After the download is complete, update the progress bar and text
     progress_bar.progress(1.0)
     status_text.text("Download complete!")
+
+    # Display failed symbols if any
+    if failed_symbols:
+        st.write("Failed to download data for the following symbols:")
+        st.write(failed_symbols)
 
 #**********************************
 # Function to calculate next rebalance date
