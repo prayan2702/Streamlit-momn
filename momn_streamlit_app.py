@@ -520,84 +520,84 @@ if start_button:
 
         
             
-            # Apply conditional formatting
-        for row in range(2, ws.max_row + 1):
-            condition_failed = False
-            if (volume := ws.cell(row=row, column=col_indices['volm_cr']).value) is not None and volume < 1:
-                ws.cell(row=row, column=col_indices['volm_cr']).fill = no_condition_fill
-                ws.cell(row=row, column=col_indices['volm_cr']).font = bold_font
-                condition_failed = True
-            if (close := ws.cell(row=row, column=col_indices['Close']).value) is not None and close <= ws.cell(row=row,
-                                                                                                               column=
-                                                                                                               col_indices[
-                                                                                                                   'dma200d']).value:
-                ws.cell(row=row, column=col_indices['Close']).fill = no_condition_fill
-                ws.cell(row=row, column=col_indices['Close']).font = bold_font
-                condition_failed = True
-            if (away_ath := ws.cell(row=row, column=col_indices['AWAY_ATH']).value) is not None and away_ath <= -25:
-                ws.cell(row=row, column=col_indices['AWAY_ATH']).fill = no_condition_fill
-                ws.cell(row=row, column=col_indices['AWAY_ATH']).font = bold_font
-                condition_failed = True
-            if (roc12M := ws.cell(row=row, column=col_indices['roc12M']).value) is not None and roc12M <= 6.5:
-                ws.cell(row=row, column=col_indices['roc12M']).fill = no_condition_fill
-                ws.cell(row=row, column=col_indices['roc12M']).font = bold_font
-                condition_failed = True
-            if (circuit := ws.cell(row=row, column=col_indices['circuit']).value) is not None and circuit >= 20:
-                ws.cell(row=row, column=col_indices['circuit']).fill = no_condition_fill
-                ws.cell(row=row, column=col_indices['circuit']).font = bold_font
-                condition_failed = True
-            if (roc1M := ws.cell(row=row, column=col_indices['roc1M']).value) is not None and roc12M and roc12M != 0:
-                if roc1M / roc12M * 100 >= 50:
-                    ws.cell(row=row, column=col_indices['roc1M']).fill = no_condition_fill
-                    ws.cell(row=row, column=col_indices['roc1M']).font = bold_font
-                    condition_failed = True
-            if close is not None and close <= 30:
-                ws.cell(row=row, column=col_indices['Close']).fill = no_condition_fill
-                ws.cell(row=row, column=col_indices['Close']).font = bold_font
-                condition_failed = True
-            if (circuit5 := ws.cell(row=row, column=col_indices['circuit5']).value) is not None and circuit5 > 10:
-                ws.cell(row=row, column=col_indices['circuit5']).fill = no_condition_fill
-                ws.cell(row=row, column=col_indices['circuit5']).font = bold_font
-                condition_failed = True
-            if roc12M is not None and roc12M > 1000:
-                ws.cell(row=row, column=col_indices['roc12M']).fill = no_condition_fill
-                ws.cell(row=row, column=col_indices['roc12M']).font = bold_font
-                condition_failed = True
-            if condition_failed:
-                ws.cell(row=row, column=col_indices['Ticker']).fill = no_condition_fill
+          # Apply conditional formatting
+	for row in range(2, ws.max_row + 1):
+	    condition_failed = False
+	    if (volume := ws.cell(row=row, column=col_indices['volm_cr']).value) is not None and volume < 1:
+	        ws.cell(row=row, column=col_indices['volm_cr']).fill = no_condition_fill
+	        ws.cell(row=row, column=col_indices['volm_cr']).font = bold_font
+	        condition_failed = True
+	    if (close := ws.cell(row=row, column=col_indices['Close']).value) is not None and close <= ws.cell(
+	        row=row, column=col_indices['dma200d']
+	    ).value:
+	        ws.cell(row=row, column=col_indices['Close']).fill = no_condition_fill
+	        ws.cell(row=row, column=col_indices['Close']).font = bold_font
+	        condition_failed = True
+	    if (away_ath := ws.cell(row=row, column=col_indices['AWAY_ATH']).value) is not None and away_ath <= -25:
+	        ws.cell(row=row, column=col_indices['AWAY_ATH']).fill = no_condition_fill
+	        ws.cell(row=row, column=col_indices['AWAY_ATH']).font = bold_font
+	        condition_failed = True
+	    if (roc12M := ws.cell(row=row, column=col_indices['roc12M']).value) is not None and roc12M <= 6.5:
+	        ws.cell(row=row, column=col_indices['roc12M']).fill = no_condition_fill
+	        ws.cell(row=row, column=col_indices['roc12M']).font = bold_font
+	        condition_failed = True
+	    if (circuit := ws.cell(row=row, column=col_indices['circuit']).value) is not None and circuit >= 20:
+	        ws.cell(row=row, column=col_indices['circuit']).fill = no_condition_fill
+	        ws.cell(row=row, column=col_indices['circuit']).font = bold_font
+	        condition_failed = True
+	    if (roc1M := ws.cell(row=row, column=col_indices['roc1M']).value) is not None and roc12M and roc12M != 0:
+	        if roc1M / roc12M * 100 >= 50:
+	            ws.cell(row=row, column=col_indices['roc1M']).fill = no_condition_fill
+	            ws.cell(row=row, column=col_indices['roc1M']).font = bold_font
+	            condition_failed = True
+	    if close is not None and close <= 30:
+	        ws.cell(row=row, column=col_indices['Close']).fill = no_condition_fill
+	        ws.cell(row=row, column=col_indices['Close']).font = bold_font
+	        condition_failed = True
+	    if (circuit5 := ws.cell(row=row, column=col_indices['circuit5']).value) is not None and circuit5 > 10:
+	        ws.cell(row=row, column=col_indices['circuit5']).fill = no_condition_fill
+	        ws.cell(row=row, column=col_indices['circuit5']).font = bold_font
+	        condition_failed = True
+	    if roc12M is not None and roc12M > 1000:
+	        ws.cell(row=row, column=col_indices['roc12M']).fill = no_condition_fill
+	        ws.cell(row=row, column=col_indices['roc12M']).font = bold_font
+	        condition_failed = True
+	    if condition_failed:
+	        ws.cell(row=row, column=col_indices['Ticker']).fill = no_condition_fill
+	
+	# Round off "ATH" column values
+	ath_idx = None
+	for col in range(1, ws.max_column + 1):
+	    if ws.cell(row=1, column=col).value == "ATH":  # Search for "ATH" header
+	        ath_idx = col
+	        break
+	if ath_idx:
+	    for row in range(2, ws.max_row + 1):
+	        cell = ws.cell(row=row, column=ath_idx)
+	        if isinstance(cell.value, (int, float)):
+	            cell.value = round(cell.value)
+	
+	# *********************
+	# Get the headers and find column indexes by name
+	headers = [cell.value for cell in ws[1]]
+	col_indices = {
+	    'Rank': headers.index('Rank') + 1
+	}
+	
+	# Determine the Rank threshold based on the universe
+	rank_threshold = 100 if U == 'AllNSE' else 75
+	
+	# Highlight "Rank" column cells where value <= threshold with light green
+	light_green_fill = PatternFill(start_color="90EE90", end_color="90EE90", fill_type="solid")
+	for row in range(2, ws.max_row + 1):
+	    cell = ws.cell(row=row, column=col_indices['Rank'])
+	    if cell.value is not None and cell.value <= rank_threshold:
+	        cell.fill = light_green_fill
+	
+	# Save the modified Excel file
+	wb.save(file_name)
+	print(f"\nExcel file '{file_name}' updated with formatting\n")
 
-                # Round off "ATH" column values
-                ath_idx = None
-                for col in range(1, ws.max_column + 1):
-                    if ws.cell(row=1, column=col).value == "ATH":  # Search for "ATH" header
-                        ath_idx = col
-                        break
-                if ath_idx:
-                    for row in range(2, ws.max_row + 1):
-                        cell = ws.cell(row=row, column=ath_idx)
-                        if isinstance(cell.value, (int, float)):
-                            cell.value = round(cell.value)
-
-       #*********************
-       # Get the headers and find column indexes by name
-       headers = [cell.value for cell in ws[1]]
-       col_indices = {
-	   'Rank': headers.index('Rank') + 1
-       }
-
-       # Determine the Rank threshold based on the universe
-       rank_threshold = 100 if U == 'AllNSE' else 75
-
-       # Highlight "Rank" column cells where value <= threshold with light green
-       light_green_fill = PatternFill(start_color="90EE90", end_color="90EE90", fill_type="solid")
-       for row in range(2, ws.max_row + 1):
-	   cell = ws.cell(row=row, column=col_indices['Rank'])
-	   if cell.value is not None and cell.value <= rank_threshold:
-	       cell.fill = light_green_fill
-
-       # Save the modified Excel file
-       wb.save(file_name)
-       print(f"\nExcel file '{file_name}' updated with formatting\n")
 #*********************************************************
 
 
