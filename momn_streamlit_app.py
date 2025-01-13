@@ -668,21 +668,27 @@ if start_button:
                 rank_idx = col
                 break
     
-        # Determine the Rank threshold based on the universe
-        rank_threshold = 100 if U == 'AllNSE' else 75
-    
-        if rank_idx:
-            for row in range(2, ws.max_row + 1):
-                cell = ws.cell(row=row, column=rank_idx)
-                if isinstance(cell.value, (int, float)) and cell.value <= rank_threshold:
-                    cell.fill = light_green_fill
-    
-        # Add summary
-        total_filtered_stocks = ws.max_row - 1
-        ws.append([])  # Empty row
-        ws.append(["Summary"])  # Summary heading
-        summary_start_row = ws.max_row
-        ws.append([f"Total Filtered Stocks: {total_filtered_stocks}"])
+	# Determine the Rank threshold based on the universe
+	rank_threshold = 100 if U == 'AllNSE' else 75
+	
+	rank_75_count = 0  # Initialize count for stocks within the rank threshold
+	
+	if rank_idx:
+	    for row in range(2, ws.max_row + 1):
+	        cell = ws.cell(row=row, column=rank_idx)
+	        if isinstance(cell.value, (int, float)) and cell.value <= rank_threshold:
+	            cell.fill = light_green_fill  # Highlight stock within the threshold
+	            rank_75_count += 1  # Increment count for stocks within the threshold
+	
+	# Add summary
+	total_filtered_stocks = ws.max_row - 1
+	ws.append([])  # Empty row
+	ws.append(["Summary"])  # Summary heading
+	summary_start_row = ws.max_row
+	ws.append([f"Total Filtered Stocks: {total_filtered_stocks}"])
+	
+	# Add the number of stocks within the dynamic rank threshold
+	ws.append([f"Number of Stocks within {rank_threshold} Rank: {rank_75_count}"])
     
         # Apply bold font to the summary
         for row in ws.iter_rows(min_row=summary_start_row, max_row=ws.max_row, min_col=1, max_col=1):
