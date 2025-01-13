@@ -578,16 +578,26 @@ if start_button:
                         if isinstance(cell.value, (int, float)):
                             cell.value = round(cell.value)
 
-        # Highlight "Rank" column cells <= 75 with light green
-        light_green_fill = PatternFill(start_color="90EE90", end_color="90EE90", fill_type="solid")
-        for row in range(2, ws.max_row + 1):
-            cell = ws.cell(row=row, column=col_indices['Rank'])
-            if cell.value is not None and cell.value <= 75:
-                cell.fill = light_green_fill
-
-        # Save the modified Excel file
-        wb.save(file_name)
-        print(f"\nExcel file '{file_name}' updated with formatting\n")
+	       #*********************
+		# Get the headers and find column indexes by name
+		headers = [cell.value for cell in ws[1]]
+		col_indices = {
+		'Rank': headers.index('Rank') + 1
+		}
+		
+		# Determine the Rank threshold based on the universe
+		rank_threshold = 100 if U == 'AllNSE' else 75
+		
+		# Highlight "Rank" column cells where value <= threshold with light green
+		light_green_fill = PatternFill(start_color="90EE90", end_color="90EE90", fill_type="solid")
+		for row in range(2, ws.max_row + 1):
+		cell = ws.cell(row=row, column=col_indices['Rank'])
+		if cell.value is not None and cell.value <= rank_threshold:
+		    cell.fill = light_green_fill
+		#********************
+	        # Save the modified Excel file
+	        wb.save(file_name)
+	        print(f"\nExcel file '{file_name}' updated with formatting\n")
 
 
 #*********************************************************
@@ -663,21 +673,32 @@ if start_button:
                 rank_idx = col
                 break
 
-        rank_75_count = 0
-        if rank_idx:
-            for row in range(2, ws.max_row + 1):
-                cell = ws.cell(row=row, column=rank_idx)
-                if isinstance(cell.value, (int, float)) and cell.value <= 75:
-                    cell.fill = light_green_fill
-                    rank_75_count += 1
+        #***********************
+        # Determine the Rank threshold based on the universe
+        rank_threshold = 100 if U == 'AllNSE' else 75
 
-        # Add summary
-        total_filtered_stocks = ws.max_row - 1
+	# Highlight "Rank" column cells where value <= threshold with light green
+	rank_idx = None
+     	light_green_fill = PatternFill(start_color="90EE90", end_color="90EE90", fill_type="solid")
+	for col in range(1, ws.max_column + 1):
+	    if ws.cell(row=1, column=col).value == "Rank":
+                rank_idx = col
+                break
+
+        if rank_idx:
+	    for row in range(2, ws.max_row + 1):
+                cell = ws.cell(row=row, column=rank_idx)
+                if isinstance(cell.value, (int, float)) and cell.value <= rank_threshold:
+                    cell.fill = light_green_fill
+
+	# Add summary
+	total_filtered_stocks = ws.max_row - 1
         ws.append([])  # Empty row
         ws.append(["Summary"])  # Summary heading
-        summary_start_row = ws.max_row
-        ws.append([f"Total Filtered Stocks:  {total_filtered_stocks}"])
-        ws.append([f"Number of Stocks within 75 Rank:  {rank_75_count}"])
+	summary_start_row = ws.max_row
+	ws.append([f"Total Filtered Stocks:  {total_filtered_stocks}"])
+	#**********************    
+
 
         # Apply bold font to the summary
         for row in ws.iter_rows(min_row=summary_start_row, max_row=ws.max_row, min_col=1, max_col=1):
