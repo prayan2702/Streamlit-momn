@@ -651,14 +651,6 @@ if start_button:
                 if isinstance(cell.value, (int, float)):
                     cell.value = f"{cell.value}%"
 
-        # Highlight "Rank" column cells where value <= 75 with light green
-        rank_idx = None
-        light_green_fill = PatternFill(start_color="90EE90", end_color="90EE90", fill_type="solid")
-        for col in range(1, ws.max_column + 1):
-            if ws.cell(row=1, column=col).value == "Rank":
-                rank_idx = col
-                break
-
         #***********************
         # Highlight "Rank" column cells where value <= threshold with light green
         rank_idx = None
