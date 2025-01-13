@@ -579,25 +579,25 @@ if start_button:
                             cell.value = round(cell.value)
 
        #*********************
-	    # Get the headers and find column indexes by name
-	    headers = [cell.value for cell in ws[1]]
-	    col_indices = {
-	        'Rank': headers.index('Rank') + 1
-	    }
-	
-	    # Determine the Rank threshold based on the universe
-	    rank_threshold = 100 if U == 'AllNSE' else 75
-	
-	    # Highlight "Rank" column cells where value <= threshold with light green
-	    light_green_fill = PatternFill(start_color="90EE90", end_color="90EE90", fill_type="solid")
-	    for row in range(2, ws.max_row + 1):
-	        cell = ws.cell(row=row, column=col_indices['Rank'])
-	        if cell.value is not None and cell.value <= rank_threshold:
-	            cell.fill = light_green_fill
-	
-	    # Save the modified Excel file
-	    wb.save(file_name)
-	    print(f"\nExcel file '{file_name}' updated with formatting\n")
+       # Get the headers and find column indexes by name
+       headers = [cell.value for cell in ws[1]]
+       col_indices = {
+	   'Rank': headers.index('Rank') + 1
+       }
+
+       # Determine the Rank threshold based on the universe
+       rank_threshold = 100 if U == 'AllNSE' else 75
+
+       # Highlight "Rank" column cells where value <= threshold with light green
+       light_green_fill = PatternFill(start_color="90EE90", end_color="90EE90", fill_type="solid")
+       for row in range(2, ws.max_row + 1):
+	   cell = ws.cell(row=row, column=col_indices['Rank'])
+	   if cell.value is not None and cell.value <= rank_threshold:
+	       cell.fill = light_green_fill
+
+       # Save the modified Excel file
+       wb.save(file_name)
+       print(f"\nExcel file '{file_name}' updated with formatting\n")
 #*********************************************************
 
 
