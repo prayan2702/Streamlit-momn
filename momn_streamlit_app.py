@@ -661,8 +661,7 @@ if start_button:
                 break
     
 	# Determine the Rank threshold based on the universe
-	rank_threshold = 100 if U == 'AllNSE' else 75
-	
+	   rank_threshold = 100 if U == 'AllNSE' else 75
 	rank_75_count = 0  # Initialize count for stocks within the rank threshold
 	
 	if rank_idx:
