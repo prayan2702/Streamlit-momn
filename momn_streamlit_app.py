@@ -672,39 +672,37 @@ if start_button:
                 break
 
         #***********************
-        # Determine the Rank threshold based on the universe
-        rank_threshold = 100 if U == 'AllNSE' else 75
+    # Highlight "Rank" column cells where value <= threshold with light green
+    rank_idx = None
+    light_green_fill = PatternFill(start_color="90EE90", end_color="90EE90", fill_type="solid")
+    for col in range(1, ws.max_column + 1):
+        if ws.cell(row=1, column=col).value == "Rank":
+            rank_idx = col
+            break
 
-	# Highlight "Rank" column cells where value <= threshold with light green
-	rank_idx = None
-     	light_green_fill = PatternFill(start_color="90EE90", end_color="90EE90", fill_type="solid")
-	for col in range(1, ws.max_column + 1):
-	    if ws.cell(row=1, column=col).value == "Rank":
-                rank_idx = col
-                break
+    # Determine the Rank threshold based on the universe
+    rank_threshold = 100 if U == 'AllNSE' else 75
 
-        if rank_idx:
-	    for row in range(2, ws.max_row + 1):
-                cell = ws.cell(row=row, column=rank_idx)
-                if isinstance(cell.value, (int, float)) and cell.value <= rank_threshold:
-                    cell.fill = light_green_fill
+    if rank_idx:
+        for row in range(2, ws.max_row + 1):
+            cell = ws.cell(row=row, column=rank_idx)
+            if isinstance(cell.value, (int, float)) and cell.value <= rank_threshold:
+                cell.fill = light_green_fill
 
-	# Add summary
-	total_filtered_stocks = ws.max_row - 1
-        ws.append([])  # Empty row
-        ws.append(["Summary"])  # Summary heading
-	summary_start_row = ws.max_row
-	ws.append([f"Total Filtered Stocks:  {total_filtered_stocks}"])
-	#**********************    
+    # Add summary
+    total_filtered_stocks = ws.max_row - 1
+    ws.append([])  # Empty row
+    ws.append(["Summary"])  # Summary heading
+    summary_start_row = ws.max_row
+    ws.append([f"Total Filtered Stocks: {total_filtered_stocks}"])
 
+    # Apply bold font to the summary
+    for row in ws.iter_rows(min_row=summary_start_row, max_row=ws.max_row, min_col=1, max_col=1):
+        for cell in row:
+            cell.font = Font(bold=True)
 
-        # Apply bold font to the summary
-        for row in ws.iter_rows(min_row=summary_start_row, max_row=ws.max_row, min_col=1, max_col=1):
-            for cell in row:
-                cell.font = Font(bold=True)
-
-        wb.save(file_name)
-        print("\nFiltered Excel file formatted and updated with summary.\n")
+    wb.save(file_name)
+    print("\nFiltered Excel file formatted and updated with summary.\n")
 
 
 
