@@ -575,7 +575,7 @@ if start_button:
                     cell.value = round(cell.value)
 
         # Highlight "Rank" column cells where value <= threshold with light green
-        rank_threshold = 100 if "U" == 'AllNSE' else 75
+        rank_threshold = 100 if U == 'AllNSE' else 75
         light_green_fill = PatternFill(start_color="90EE90", end_color="90EE90", fill_type="solid")
         for row in range(2, ws.max_row + 1):
             cell = ws.cell(row=row, column=col_indices['Rank'])
