@@ -396,8 +396,8 @@ if start_button:
     dfStats['Ticker'] = dfStats['Ticker'].str.replace('.NS', '', case=False, regex=False)
 
     # Handle Nan and inf values to zero(0) for ranking
-    if ranking_method == "avgSharpe":
-        dfStats['avgSharpe'] = dfStats['avgSharpe'].replace([np.inf, -np.inf], np.nan).fillna(0)
+    if ranking_method == "avgSharpe12_6_3":
+        dfStats['avgSharpe12_6_3'] = dfStats['avgSharpe12_6_3'].replace([np.inf, -np.inf], np.nan).fillna(0)
     elif ranking_method == "avg_All":
         dfStats['avg_All'] = dfStats['avg_All'].replace([np.inf, -np.inf], np.nan).fillna(0)
     elif ranking_method == "avgSharpe9_6_3":  # New handling
@@ -413,7 +413,7 @@ if start_button:
     # Conditional logic for sorting
     if ranking_method in ["avg_All", "sharpe12M"]:
        dfStats = dfStats.sort_values(by=[ranking_method, 'roc12M'], ascending=[False, False])
-    elif ranking_method in ["avgSharpe", "sharpe3M"]:
+    elif ranking_method in ["avgSharpe12_6_3", "sharpe3M"]:
        dfStats = dfStats.sort_values(by=[ranking_method, 'roc3M'], ascending=[False, False])
     elif ranking_method == "avgSharpe9_6_3":  # New sorting rule
     	dfStats = dfStats.sort_values(by=[ranking_method, 'roc6M'], ascending=[False, False])
