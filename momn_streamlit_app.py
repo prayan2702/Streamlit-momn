@@ -130,7 +130,7 @@ ranking_method = ranking_options[ranking_method_display]
 
 # Select Universe with default value as 'N750'
 universe = ['Nifty50', 'Nifty100', 'Nifty200', 'Nifty250', 'Nifty500', 'N750', 'AllNSE']
-U = st.selectbox('Select Universe:', universe, index=5)  # Default value is 'N750' (index 5)
+U = st.selectbox('Select Universe:', universe, index=6)  # Default value is 'AllNSE' (index 6)
 
 # Date Picker for Lookback Start Date
 selected_date = st.date_input("Select Lookback Starting Date", datetime.today())
