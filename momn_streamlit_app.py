@@ -111,7 +111,7 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 
 # Dropdown options with display labels and corresponding values
 ranking_options = {
-    "AvgSharpe 12M/6M/3M": "avgSharpe",
+    "AvgSharpe 12M/6M/3M": "avgSharpe12_6_3",
     "AvgSharpe 9M/6M/3M": "avgSharpe9_6_3",  # New method
     "AvgSharpe 12M/9M/6M/3M": "avg_All",
     "Sharpe12M": "sharpe12M",
@@ -351,16 +351,15 @@ if start_button:
     dfStats['sharpe6M'] = getSharpeRoC(dfStats['roc6M'], dfStats['vol6M'])
     dfStats['sharpe3M'] = getSharpeRoC(dfStats['roc3M'], dfStats['vol3M'])
 
-    #dfStats['avgSharpe'] = (dfStats[["sharpe12M", "sharpe6M", "sharpe3M"]].mean(axis=1)).round(2)  # 1st Factor
     #****************************************
     # Columns for different ranking methods
-    columns_avgSharpe = ["sharpe12M", "sharpe6M", "sharpe3M"]
+    columns_avgSharpe12_6_3 = ["sharpe12M", "sharpe6M", "sharpe3M"]
     columns_avgAll = ["sharpe12M", "sharpe9M", "sharpe6M", "sharpe3M"]
     columns_avgSharpe9_6_3 = ["sharpe9M", "sharpe6M", "sharpe3M"]
 
     # Conditional logic based on ranking_method
-    if ranking_method == "avgSharpe":
-        dfStats['avgSharpe'] = dfStats[columns_avgSharpe].mean(axis=1).round(2)
+    if ranking_method == "avgSharpe12_6_3":
+        dfStats['avgSharpe12_6_3'] = dfStats[columns_avgSharpe12_6_3].mean(axis=1).round(2)
     elif ranking_method == "avg_All":
         dfStats['avg_All'] = dfStats[columns_avgAll].mean(axis=1).round(2)
     elif ranking_method == "avgSharpe9_6_3":  # New logic
