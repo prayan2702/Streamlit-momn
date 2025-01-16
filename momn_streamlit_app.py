@@ -174,7 +174,7 @@ def download_chunk_with_retries(symbols, start_date, max_retries=3, delay=2):
             return yf.download(symbols, start=start_date, progress=False)
         except (Exception, JSONDecodeError) as e:
             if attempt < max_retries - 1:
-		st.warning(f"Download attempt {attempt + 1}/{max_retries} failed for some symbols. Retrying in {delay} seconds...")
+	        st.warning(f"Download attempt {attempt + 1}/{max_retries} failed for some symbols. Retrying in {delay} seconds...")
                 time.sleep(delay)
             else:
 		st.error(f"Download failed for the following symbols after {max_retries} attempts: {', '.join(symbols)}")
