@@ -176,7 +176,6 @@ def download_chunk_with_retries(symbols, start_date, max_retries=3, delay=2):
             if attempt < max_retries - 1:
                 time.sleep(delay)
             else:
-		st.error(f"Download failed for the following symbols after {max_retries} attempts: {', '.join(symbols)}")
                 raise e
 
 if start_button:
