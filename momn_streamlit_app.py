@@ -133,7 +133,7 @@ universe = ['Nifty50', 'Nifty100', 'Nifty200', 'Nifty250', 'Nifty500', 'N750', '
 U = st.selectbox('Select Universe:', universe, index=6)  # Default value is 'AllNSE' (index 6)
 
 # Date Picker for Lookback Start Date
-selected_date = st.date_input("Select Lookback Starting Date", datetime.today())
+selected_date = st.date_input("Select Lookback Date", datetime.today())
 dt2 = datetime.strptime(str(selected_date), "%Y-%m-%d").strftime('%Y-%m-%d')
 
 # Displaying Date Range Information
