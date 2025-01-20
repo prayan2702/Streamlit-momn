@@ -179,7 +179,7 @@ def download_chunk_with_retries(symbols, start_date, max_retries=3, delay=2):
 
 if start_button:
     # Download data when the button is pressed
-    CHUNK = 50
+    CHUNK = 25
     close = []
     high = []
     volume = []
