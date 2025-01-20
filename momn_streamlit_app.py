@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import yfinance as yf
+import random
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 import time
@@ -180,7 +181,7 @@ def download_chunk_with_retries(symbols, start_date, max_retries=3, delay=2):
 
 if start_button:
     # Download data when the button is pressed
-    CHUNK = 25
+    CHUNK = 50
     close = []
     high = []
     volume = []
@@ -203,7 +204,13 @@ if start_button:
         # Halt the process for 1 minute if progress reaches or exceeds 50%
         if U == "AllNSE" and progress >= 0.5 and not halted:  # Only halt once at 50% progress
             st.write("50% progress reached. Pausing for 1 minute to avoid API limits...")
-            time.sleep(60)  # Halt for 60 seconds
+            
+            # Display a 60-second countdown
+            for remaining in range(60, 0, -1):
+                countdown_text.write(f"Resuming in {remaining} seconds...")
+                time.sleep(1)
+            
+            countdown_text.empty()  # Clear the countdown text
             st.write("Resuming download...")
             halted = True  # Set flag to avoid multiple halts
 
@@ -225,7 +232,8 @@ if start_button:
         progress_percentage = int(progress * 100)
         status_text.text(f"Downloading... {progress_percentage}%")
 
-        time.sleep(2)  # Slight delay between chunks
+        # Add random delay (2–5 seconds) between chunks
+        time.sleep(random.uniform(2, 5))
 
     # After the download is complete, update the progress bar and text
     progress_bar.progress(1.0)
