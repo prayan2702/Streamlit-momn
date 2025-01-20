@@ -11,7 +11,6 @@ from openpyxl.styles import PatternFill, Font, Alignment
 from openpyxl.styles.borders import Border, Side
 from openpyxl import load_workbook
 from json.decoder import JSONDecodeError
-from concurrent.futures import ThreadPoolExecutor
 
 # Load the data into a Pandas DataFrame
 @st.cache_data(ttl=0)  # Caching har baar bypass hoga
@@ -165,38 +164,25 @@ df['Yahoo_Symbol'] = df.Symbol + '.NS'
 df = df.set_index('Yahoo_Symbol')
 symbol = list(df.index)
 
-#Slider to configure batch size
-CHUNK = st.slider("Batch Size (number of stocks per chunk)", min_value=10, max_value=100, value=50, step=10)
-
 # Add a button to start the process
 start_button = st.button("Start Data Download")
 
-# Download data with retries and exponential backoff
-def download_chunk_with_retries(symbols, start_date, max_retries=3, initial_delay=2):
-    delay = initial_delay
+def download_chunk_with_retries(symbols, start_date, max_retries=3, delay=2):
     for attempt in range(max_retries):
         try:
             return yf.download(symbols, start=start_date, progress=False)
         except Exception as e:
             if attempt < max_retries - 1:
                 time.sleep(delay)
-                delay *= 2  # Increase delay exponentially
             else:
                 raise e
 
-# Parallelized downloading function
-def download_symbols(symbols, start_date):
-    try:
-        return yf.download(symbols, start=start_date, progress=False)
-    except Exception as e:
-        return None
-
 if start_button:
     # Download data when the button is pressed
+    CHUNK = 50
     close = []
     high = []
     volume = []
-    failed_symbols = []
 
     # Create a progress bar
     progress_bar = st.progress(0)
@@ -204,37 +190,38 @@ if start_button:
 
     # Track the number of stocks downloaded
     total_symbols = len(symbol)
+    chunk_count = (total_symbols // CHUNK) + (1 if total_symbols % CHUNK != 0 else 0)
 
-    # Divide symbols into chunks
-    chunks = [symbol[i:i + CHUNK] for i in range(0, total_symbols, CHUNK)]
+    # Retry failed downloads without segregation
+    for k in range(0, len(symbol), CHUNK):
+        _symlist = symbol[k:k + CHUNK]
+        for attempt in range(3):  # Retry up to 3 times
+            try:
+                _x = download_chunk_with_retries(_symlist, dates['startDate'])
+                close.append(_x['Close'])
+                high.append(_x['High'])
+                volume.append(_x['Close'] * _x['Volume'])
+                break  # Exit retry loop if successful
+            except Exception as e:
+                if attempt == 2:
+                    st.write(f"Failed to download data for: {_symlist}. Error: {e}")
 
-    with ThreadPoolExecutor(max_workers=2) as executor:
-        results = list(executor.map(lambda chunk: download_chunk_with_retries(chunk, dates['startDate']), chunks))
-
-    # Process the results
-    for idx, result in enumerate(results):
-        if result is not None:
-            close.append(result['Close'])
-            high.append(result['High'])
-            volume.append(result['Close'] * result['Volume'])
-        else:
-            failed_symbols.extend(chunks[idx])
-
-        # Update progress bar
-        progress = (idx + 1) / len(chunks)
+        # Update progress bar after each chunk
+        progress = (k + CHUNK) / total_symbols
+        progress = min(max(progress, 0.0), 1.0)  # Ensure progress is between 0 and 1
         progress_bar.progress(progress)
-        status_text.text(f"Downloading... {int(progress * 100)}%")
 
-    # After the download is complete
+        # Update status text with progress percentage
+        progress_percentage = int(progress * 100)
+        status_text.text(f"Downloading... {progress_percentage}%")
+
+        time.sleep(0.5)
+
+    # After the download is complete, update the progress bar and text
     progress_bar.progress(1.0)
     status_text.text("Download complete!")
 
     st.write("All data download attempts are complete.")
-
-    # Display failed tickers
-    if failed_symbols:
-        st.write("#### Failed Tickers:")
-        st.write(", ".join(failed_symbols))
 #**********************************
 # Function to calculate next rebalance date
     def get_next_rebalance_date(current_date):
