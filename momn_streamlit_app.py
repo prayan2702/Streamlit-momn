@@ -289,9 +289,9 @@ if start_button:
 
 
 #**************************************************
-    # Handle failed symbols (if any)
-    if failed_symbols:
-        st.write(f"Failed to download data for the following symbols: {', '.join(failed_symbols)}")
+    # # Handle failed symbols (if any)
+    # if failed_symbols:
+    #     st.write(f"Failed to download data for the following symbols: {', '.join(failed_symbols)}")
 
 
     # Convert close, high, and volume lists to DataFrames
