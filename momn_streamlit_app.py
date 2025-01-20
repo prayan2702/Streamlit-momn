@@ -175,7 +175,7 @@ def download_chunk_with_retries(symbols, start_date, max_retries=3, delay=2):
         except (Exception, JSONDecodeError, ValueError) as e:
             if attempt < max_retries - 1:
                 time.sleep(delay)
-		print(f"Retrying {symbol} (attempt {attempt + 1}/{max_retries})...") 
+		print(f"Retrying {symbol} (attempt {attempt + 1}/{max_retries})...")
             else:
                 raise e
 
