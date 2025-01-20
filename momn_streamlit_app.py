@@ -218,15 +218,13 @@ if start_button:
                 if attempt == 2:
                     st.write(f"Failed to download data for: {_symlist}. Error: {e}")
 
-        # Update progress bar and status text after each chunk
-        progress_bar.progress(progress)
+        # Update status text with progress percentage
         progress_percentage = int(progress * 100)
         status_text.text(f"Downloading... {progress_percentage}%")
 
+        time.sleep(0.5)
         # # Add random delay (2–5 seconds) between chunks
         # time.sleep(random.uniform(2, 5))
-
-	time.sleep(0.5)
 
     # After the download is complete, update the progress bar and text
     progress_bar.progress(1.0)
