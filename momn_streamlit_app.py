@@ -172,7 +172,7 @@ def download_chunk_with_retries(symbols, start_date, max_retries=3, delay=2):
     for attempt in range(max_retries):
         try:
             return yf.download(symbols, start=start_date, progress=False)
-        except (Exception, JSONDecodeError, ValueError) as e:
+        except (Exception, JSONDecodeError, ValueError, ChunkedEncodingError) as e:
             if attempt < max_retries - 1:
                 time.sleep(delay)
             else:
