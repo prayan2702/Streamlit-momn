@@ -174,6 +174,7 @@ def download_chunk_with_retries(symbols, start_date, max_retries=3, delay=2):
         except Exception as e:
             if attempt < max_retries - 1:
                 time.sleep(delay)
+		delay *= 2  #new added
             else:
                 raise e
 
@@ -215,7 +216,7 @@ if start_button:
         progress_percentage = int(progress * 100)
         status_text.text(f"Downloading... {progress_percentage}%")
 
-        time.sleep(0.5)
+        time.sleep(2)
 
     # After the download is complete, update the progress bar and text
     progress_bar.progress(1.0)
