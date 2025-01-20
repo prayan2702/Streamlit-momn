@@ -190,6 +190,7 @@ if start_button:
     # Create a progress bar
     progress_bar = st.progress(0)
     status_text = st.empty()  # Placeholder for progress text
+    countdown_text = st.empty()  # Placeholder for countdown text
 
     # Track the number of stocks downloaded
     total_symbols = len(symbol)
