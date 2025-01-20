@@ -112,11 +112,12 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 # Dropdown options with display labels and corresponding values
 ranking_options = {
     "AvgSharpe 12M/6M/3M": "avgSharpe12_6_3",
-    "AvgSharpe 9M/6M/3M": "avgSharpe9_6_3",  # New method
+    "AvgSharpe 9M/6M/3M": "avgSharpe9_6_3",
     "AvgSharpe 12M/9M/6M/3M": "avg_All",
     "Sharpe12M": "sharpe12M",
-    "Sharpe3M":"sharpe3M"
+    "Sharpe3M": "sharpe3M"
 }
+
 # Display dropdown for ranking method selection
 ranking_method_display = st.selectbox(
     "Select Ranking Method",
@@ -127,10 +128,9 @@ ranking_method_display = st.selectbox(
 # Get the actual value for the selected display label
 ranking_method = ranking_options[ranking_method_display]
 
-
 # Select Universe with default value as 'N750'
 universe = ['Nifty50', 'Nifty100', 'Nifty200', 'Nifty250', 'Nifty500', 'N750', 'AllNSE']
-U = st.selectbox('Select Universe:', universe, index=6)  # Default value is 'AllNSE' (index 6)
+U = st.selectbox('Select Universe:', universe, index=6)  # Default value is 'AllNSE'
 
 # Date Picker for Lookback Start Date
 selected_date = st.date_input("Select Lookback Date", datetime.today())
@@ -150,7 +150,6 @@ dates = {
 st.write("##### Date Range:")
 st.write(f"Start Date: **{dates['startDate'].strftime('%d-%m-%Y')}**")
 st.write(f"End Date: **{dates['endDate'].strftime('%d-%m-%Y')}**")
-
 
 # Read index file based on selected universe
 if U == 'N750':
@@ -172,7 +171,7 @@ def download_chunk_with_retries(symbols, start_date, max_retries=3, delay=2):
     for attempt in range(max_retries):
         try:
             return yf.download(symbols, start=start_date, progress=False)
-        except (Exception, JSONDecodeError, ValueError, ChunkedEncodingError) as e:
+        except Exception as e:
             if attempt < max_retries - 1:
                 time.sleep(delay)
             else:
@@ -193,21 +192,19 @@ if start_button:
     total_symbols = len(symbol)
     chunk_count = (total_symbols // CHUNK) + (1 if total_symbols % CHUNK != 0 else 0)
 
-    # Use a separate list to handle failed downloads
-    failed_symbols = []
-
+    # Retry failed downloads without segregation
     for k in range(0, len(symbol), CHUNK):
         _symlist = symbol[k:k + CHUNK]
-
-        # Try downloading data for each chunk of symbols
-        try:
-            _x = download_chunk_with_retries(_symlist, dates['startDate'])
-            close.append(_x['Close'])
-            high.append(_x['High'])
-            volume.append(_x['Close'] * _x['Volume'])
-        except (Exception, JSONDecodeError) as e:
-            failed_symbols.extend(_symlist)  # Add failed symbols to the list
-            st.write(f"Failed to download data for: {', '.join(_symlist)}. Error: {e}")
+        for attempt in range(3):  # Retry up to 3 times
+            try:
+                _x = download_chunk_with_retries(_symlist, dates['startDate'])
+                close.append(_x['Close'])
+                high.append(_x['High'])
+                volume.append(_x['Close'] * _x['Volume'])
+                break  # Exit retry loop if successful
+            except Exception as e:
+                if attempt == 2:
+                    st.write(f"Failed to download data for: {_symlist}. Error: {e}")
 
         # Update progress bar after each chunk
         progress = (k + CHUNK) / total_symbols
@@ -224,10 +221,7 @@ if start_button:
     progress_bar.progress(1.0)
     status_text.text("Download complete!")
 
-    # Display failed symbols if any
-    if failed_symbols:
-        st.write("Failed to download data for the following symbols:")
-        st.write(failed_symbols)
+    st.write("All data download attempts are complete.")
 
 #**********************************
 # Function to calculate next rebalance date
