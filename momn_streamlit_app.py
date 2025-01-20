@@ -218,7 +218,8 @@ if start_button:
                 if attempt == 2:
                     st.write(f"Failed to download data for: {_symlist}. Error: {e}")
 
-        # Update status text with progress percentage
+        # Update progress bar and status text after each chunk
+        progress_bar.progress(progress)
         progress_percentage = int(progress * 100)
         status_text.text(f"Downloading... {progress_percentage}%")
 
