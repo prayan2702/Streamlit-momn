@@ -165,6 +165,14 @@ df['Yahoo_Symbol'] = df.Symbol + '.NS'
 df = df.set_index('Yahoo_Symbol')
 symbol = list(df.index)
 
+# Determine chunk size based on the universe
+if U == "AllNSE":
+    CHUNK = 15  # Smaller chunk size for AllNSE to prevent API throttling
+else:
+    CHUNK = 50  # Default chunk size for other universes
+
+st.write(f"Chunk size set to {CHUNK} for universe: {U}")
+
 # Add a button to start the process
 start_button = st.button("Start Data Download")
 
@@ -179,13 +187,6 @@ def download_chunk_with_retries(symbols, start_date, max_retries=3, delay=2):
             else:
                 raise e
 		    
-# Determine chunk size based on the universe
-if U == "AllNSE":
-    CHUNK = 15  # Smaller chunk size for AllNSE to prevent API throttling
-else:
-    CHUNK = 50  # Default chunk size for other universes
-
-st.write(f"Chunk size set to {CHUNK} for universe: {U}")
 
 if start_button:
     # Download data when the button is pressed
