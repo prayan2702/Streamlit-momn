@@ -165,6 +165,9 @@ df['Yahoo_Symbol'] = df.Symbol + '.NS'
 df = df.set_index('Yahoo_Symbol')
 symbol = list(df.index)
 
+#Slider to configure batch size
+CHUNK = st.slider("Batch Size (number of stocks per chunk)", min_value=10, max_value=100, value=50, step=10)
+
 # Add a button to start the process
 start_button = st.button("Start Data Download")
 
@@ -190,7 +193,6 @@ def download_symbols(symbols, start_date):
 
 if start_button:
     # Download data when the button is pressed
-    CHUNK = st.slider("Batch Size (Default: 50)", min_value=10, max_value=100, value=50, step=10)
     close = []
     high = []
     volume = []
