@@ -115,13 +115,13 @@ ranking_options = {
     "AvgSharpe 9M/6M/3M": "avgSharpe9_6_3",
     "AvgSharpe 12M/9M/6M/3M": "avg_All",
     "Sharpe12M": "sharpe12M",
-    "Sharpe3M": "sharpe3M"
+    "Sharpe3M": "sharpe3M",
 }
 
 # Display dropdown for ranking method selection
 ranking_method_display = st.selectbox(
     "Select Ranking Method",
-    options=list(ranking_options.keys()),  # Display labels
+    options=list(ranking_options.keys()),
     index=0  # Default to the first option
 )
 
@@ -130,7 +130,7 @@ ranking_method = ranking_options[ranking_method_display]
 
 # Select Universe with default value as 'N750'
 universe = ['Nifty50', 'Nifty100', 'Nifty200', 'Nifty250', 'Nifty500', 'N750', 'AllNSE']
-U = st.selectbox('Select Universe:', universe, index=6)  # Default value is 'AllNSE'
+U = st.selectbox('Select Universe:', universe, index=6)  # Default value is 'AllNSE' (index 6)
 
 # Date Picker for Lookback Start Date
 selected_date = st.date_input("Select Lookback Date", datetime.today())
@@ -155,7 +155,7 @@ st.write(f"End Date: **{dates['endDate'].strftime('%d-%m-%Y')}**")
 if U == 'N750':
     file_path = 'https://raw.githubusercontent.com/prayan2702/Streamlit-momn/refs/heads/main/ind_niftytotalmarket_list.csv'
 elif U == 'AllNSE':
-    file_path = f'https://raw.githubusercontent.com/prayan2702/Streamlit-momn/refs/heads/main/NSE_EQ_ALL.csv'
+    file_path = 'https://raw.githubusercontent.com/prayan2702/Streamlit-momn/refs/heads/main/NSE_EQ_ALL.csv'
 else:
     file_path = f'https://raw.githubusercontent.com/prayan2702/Streamlit-momn/refs/heads/main/ind_{U.lower()}list.csv'
 
@@ -167,61 +167,88 @@ symbol = list(df.index)
 # Add a button to start the process
 start_button = st.button("Start Data Download")
 
-def download_chunk_with_retries(symbols, start_date, max_retries=3, delay=2):
-    for attempt in range(max_retries):
+# Validate ticker symbols
+def validate_tickers(tickers):
+    valid_tickers = []
+    invalid_tickers = []
+    for ticker in tickers:
         try:
-            return yf.download(symbols, start=start_date, progress=False)
-        except Exception as e:
-            if attempt < max_retries - 1:
-                time.sleep(delay)
+            data = yf.Ticker(ticker).info
+            if 'regularMarketPrice' in data:  # Check if the ticker has valid data
+                valid_tickers.append(ticker)
             else:
-                raise e
+                invalid_tickers.append(ticker)
+        except Exception:
+            invalid_tickers.append(ticker)
+    return valid_tickers, invalid_tickers
 
-if start_button:
-    # Download data when the button is pressed
-    CHUNK = 50
-    close = []
-    high = []
-    volume = []
-
-    # Create a progress bar
-    progress_bar = st.progress(0)
-    status_text = st.empty()  # Placeholder for progress text
-
-    # Track the number of stocks downloaded
-    total_symbols = len(symbol)
-    chunk_count = (total_symbols // CHUNK) + (1 if total_symbols % CHUNK != 0 else 0)
-
-    # Retry failed downloads without segregation
-    for k in range(0, len(symbol), CHUNK):
-        _symlist = symbol[k:k + CHUNK]
-        for attempt in range(3):  # Retry up to 3 times
+# Retry failed downloads
+def retry_failed_downloads(failed_symbols, start_date, max_retries=3):
+    retry_results = []
+    still_failed = []
+    for symbol in failed_symbols:
+        for attempt in range(max_retries):
             try:
-                _x = download_chunk_with_retries(_symlist, dates['startDate'])
-                close.append(_x['Close'])
-                high.append(_x['High'])
-                volume.append(_x['Close'] * _x['Volume'])
+                data = yf.download(symbol, start=start_date, progress=False)
+                if not data.empty:
+                    retry_results.append(data)
                 break  # Exit retry loop if successful
             except Exception as e:
-                if attempt == 2:
-                    st.write(f"Failed to download data for: {_symlist}. Error: {e}")
+                if attempt == max_retries - 1:
+                    still_failed.append(symbol)
+    return retry_results, still_failed
 
-        # Update progress bar after each chunk
+# Download stock data with retries and error handling
+def download_stock_data(symbols, start_date):
+    CHUNK = 50  # Number of stocks per chunk
+    downloaded_data = []
+    failed_symbols = []
+
+    progress_bar = st.progress(0)
+    status_text = st.empty()
+    total_symbols = len(symbols)
+
+    for k in range(0, len(symbols), CHUNK):
+        _symlist = symbols[k:k + CHUNK]
+        try:
+            data = yf.download(_symlist, start=start_date, progress=False)
+            if not data.empty:
+                downloaded_data.append(data)
+        except Exception as e:
+            failed_symbols.extend(_symlist)  # Log failed symbols
+
+        # Update progress
         progress = (k + CHUNK) / total_symbols
-        progress = min(max(progress, 0.0), 1.0)  # Ensure progress is between 0 and 1
-        progress_bar.progress(progress)
+        progress_bar.progress(min(progress, 1.0))
+        status_text.text(f"Downloading... {int(progress * 100)}%")
 
-        # Update status text with progress percentage
-        progress_percentage = int(progress * 100)
-        status_text.text(f"Downloading... {progress_percentage}%")
+        time.sleep(0.5)  # Throttle requests
 
-        time.sleep(0.5)
+    return downloaded_data, failed_symbols
 
-    # After the download is complete, update the progress bar and text
-    progress_bar.progress(1.0)
-    status_text.text("Download complete!")
+if start_button:
+    # Validate symbols first
+    valid_symbols, invalid_symbols = validate_tickers(symbol)
+    st.write(f"Valid symbols: {len(valid_symbols)}")
+    st.write(f"Invalid symbols: {invalid_symbols}")
 
-    st.write("All data download attempts are complete.")
+    # Download data for valid symbols
+    downloaded_data, failed_symbols = download_stock_data(valid_symbols, dates['startDate'])
+
+    # Retry failed symbols
+    if failed_symbols:
+        st.write(f"Retrying failed symbols: {failed_symbols}")
+        retry_results, still_failed = retry_failed_downloads(failed_symbols, dates['startDate'])
+        downloaded_data.extend(retry_results)
+        st.write(f"Still failed symbols after retries: {still_failed}")
+
+    # Show download completion
+    st.write("Download complete!")
+    st.write(f"Total symbols downloaded: {len(downloaded_data)}")
+
+    if failed_symbols:
+        st.write("Failed symbols:")
+        st.write(failed_symbols)
 
 #**********************************
 # Function to calculate next rebalance date
