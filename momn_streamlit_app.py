@@ -174,7 +174,7 @@ def download_chunk_with_retries(symbols, start_date, max_retries=3, delay=2):
         except Exception as e:
             if attempt < max_retries - 1:
                 time.sleep(delay)
-                delay *= 2  # Delay ko double karte hain har retry ke baad
+                delay *= 2  # Double the delay for each retry
             else:
                 raise e
 
@@ -195,6 +195,17 @@ if start_button:
 
     # Retry failed downloads without segregation
     for k in range(0, len(symbol), CHUNK):
+        # Calculate progress
+        progress = (k + CHUNK) / total_symbols
+        progress = min(max(progress, 0.0), 1.0)  # Ensure progress is between 0 and 1
+
+        # Halt the process for 1 minute if progress reaches 50%
+        if U == "AllNSE" and progress >= 0.5 and progress < 0.51:  # Only for AllNSE and at 50%
+            st.write("50% progress reached. Pausing for 1 minute to avoid API limits...")
+            time.sleep(60)  # Halt for 60 seconds
+            st.write("Resuming download...")
+
+        # Process each chunk
         _symlist = symbol[k:k + CHUNK]
         for attempt in range(3):  # Retry up to 3 times
             try:
@@ -207,16 +218,12 @@ if start_button:
                 if attempt == 2:
                     st.write(f"Failed to download data for: {_symlist}. Error: {e}")
 
-        # Update progress bar after each chunk
-        progress = (k + CHUNK) / total_symbols
-        progress = min(max(progress, 0.0), 1.0)  # Ensure progress is between 0 and 1
+        # Update progress bar and status text after each chunk
         progress_bar.progress(progress)
-
-        # Update status text with progress percentage
         progress_percentage = int(progress * 100)
         status_text.text(f"Downloading... {progress_percentage}%")
 
-        time.sleep(2)
+        time.sleep(2)  # Slight delay between chunks
 
     # After the download is complete, update the progress bar and text
     progress_bar.progress(1.0)
