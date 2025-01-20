@@ -181,7 +181,10 @@ def download_chunk_with_retries(symbols, start_date, max_retries=3, delay=2):
 
 if start_button:
     # Download data when the button is pressed
-    CHUNK = 15
+    if U == "AllNSE":
+	CHUNK = 15  # Smaller chunk size for AllNSE to prevent API throttling
+    else:
+    	CHUNK = 50  # Default chunk size for other universes
     close = []
     high = []
     volume = []
