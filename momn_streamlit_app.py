@@ -174,7 +174,7 @@ def download_chunk_with_retries(symbols, start_date, max_retries=3, delay=2):
         except Exception as e:
             if attempt < max_retries - 1:
                 time.sleep(delay)
-		delay *= 2  #new added
+                delay *= 2  # Delay ko double karte hain har retry ke baad
             else:
                 raise e
 
