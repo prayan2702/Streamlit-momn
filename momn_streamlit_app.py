@@ -208,7 +208,7 @@ if start_button:
     # Divide symbols into chunks
     chunks = [symbol[i:i + CHUNK] for i in range(0, total_symbols, CHUNK)]
 
-    with ThreadPoolExecutor(max_workers=5) as executor:
+    with ThreadPoolExecutor(max_workers=2) as executor:
         results = list(executor.map(lambda chunk: download_chunk_with_retries(chunk, dates['startDate']), chunks))
 
     # Process the results
