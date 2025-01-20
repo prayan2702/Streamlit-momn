@@ -181,16 +181,14 @@ def download_chunk_with_retries(symbols, start_date, max_retries=3, delay=2):
 
 if start_button:
     # Download data when the button is pressed
-    CHUNK = 50
+    CHUNK = 100
     close = []
     high = []
     volume = []
-    halted = False  # Flag to ensure halt happens only once
 
     # Create a progress bar
     progress_bar = st.progress(0)
     status_text = st.empty()  # Placeholder for progress text
-    countdown_text = st.empty()  # Placeholder for countdown text
 
     # Track the number of stocks downloaded
     total_symbols = len(symbol)
@@ -201,19 +199,6 @@ if start_button:
         # Calculate progress
         progress = (k + CHUNK) / total_symbols
         progress = min(max(progress, 0.0), 1.0)  # Ensure progress is between 0 and 1
-
-        # Halt the process for 1 minute if progress reaches or exceeds 50%
-        if U == "AllNSE" and progress >= 0.5 and not halted:  # Only halt once at 50% progress
-            st.write("50% progress reached. Pausing for 1 minute to avoid API limits...")
-            
-            # Display a 60-second countdown
-            for remaining in range(60, 0, -1):
-                countdown_text.write(f"Resuming in {remaining} seconds...")
-                time.sleep(1)
-            
-            countdown_text.empty()  # Clear the countdown text
-            st.write("Resuming download...")
-            halted = True  # Set flag to avoid multiple halts
 
         # Process each chunk
         _symlist = symbol[k:k + CHUNK]
