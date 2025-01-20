@@ -199,11 +199,12 @@ if start_button:
         progress = (k + CHUNK) / total_symbols
         progress = min(max(progress, 0.0), 1.0)  # Ensure progress is between 0 and 1
 
-        # Halt the process for 1 minute if progress reaches 50%
-        if U == "AllNSE" and progress >= 0.5 and progress < 0.51:  # Only for AllNSE and at 50%
+        # Halt the process for 1 minute if progress reaches or exceeds 50%
+        if U == "AllNSE" and progress >= 0.5 and not halted:  # Only halt once at 50% progress
             st.write("50% progress reached. Pausing for 1 minute to avoid API limits...")
             time.sleep(60)  # Halt for 60 seconds
             st.write("Resuming download...")
+            halted = True  # Set flag to avoid multiple halts
 
         # Process each chunk
         _symlist = symbol[k:k + CHUNK]
