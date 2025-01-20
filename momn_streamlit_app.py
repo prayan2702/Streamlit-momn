@@ -184,6 +184,7 @@ if start_button:
     close = []
     high = []
     volume = []
+    halted = False  # Flag to ensure halt happens only once
 
     # Create a progress bar
     progress_bar = st.progress(0)
