@@ -185,6 +185,8 @@ if U == "AllNSE":
 else:
     CHUNK = 50  # Default chunk size for other universes
 
+st.write(f"Chunk size set to {CHUNK} for universe: {U}")
+
 if start_button:
     # Download data when the button is pressed
     close = []
