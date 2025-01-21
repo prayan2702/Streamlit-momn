@@ -24,7 +24,7 @@ if "logged_in" not in st.session_state:
 
 # Login page function
 def login():
-    st.title("Login to Momentum Ranking App")
+    st.title("Login")
     
     # Create a container for the login form and limit the width
     st.markdown("""
