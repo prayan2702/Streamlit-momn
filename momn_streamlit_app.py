@@ -35,7 +35,7 @@ def login():
         if username == USERNAME and password == PASSWORD:
             st.session_state.logged_in = True
             st.success("Logged in successfully!")
-            st.experimental_rerun()  # Reload the app after login
+            st.rerun()  # Reload the app after login
         else:
             st.error("Invalid username or password")
 
