@@ -26,22 +26,22 @@ if "logged_in" not in st.session_state:
 def login():
     st.title("Login")
     
-    # Create a container for the login form and limit the width
-    st.markdown("""
-        <style>
-            .login-form {
-                max-width: 50px;  /* Adjust this value for narrower width */
-                margin: 0 auto;
-                padding: 20px;
-                border-radius: 8px;
-                box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            }
-            /* This makes sure that the form stays centered */
-            .streamlit-expanderHeader {
-                display: none;
-            }
-        </style>
-    """, unsafe_allow_html=True)
+    # # Create a container for the login form and limit the width
+    # st.markdown("""
+    #     <style>
+    #         .login-form {
+    #             max-width: 50px;  /* Adjust this value for narrower width */
+    #             margin: 0 auto;
+    #             padding: 20px;
+    #             border-radius: 8px;
+    #             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    #         }
+    #         /* This makes sure that the form stays centered */
+    #         .streamlit-expanderHeader {
+    #             display: none;
+    #         }
+    #     </style>
+    # """, unsafe_allow_html=True)
 
 
     # Input fields for username and password
