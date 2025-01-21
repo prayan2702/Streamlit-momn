@@ -214,9 +214,10 @@ def app_content():
         high = []
         volume = []
     
-        # Create a progress bar
+        # Create a progress bar and placeholders for status text and error messages
         progress_bar = st.progress(0)
         status_text = st.empty()  # Placeholder for progress text
+        error_placeholder = st.empty()  # Placeholder for error messages
     
         # Track the number of stocks downloaded
         total_symbols = len(symbol)
@@ -239,7 +240,11 @@ def app_content():
                     break  # Exit retry loop if successful
                 except Exception as e:
                     if attempt == 2:
-                        st.write(f"Failed to download data for: {_symlist}. Error: {e}")
+                        # st.write(f"Failed to download data for: {_symlist}. Error: {e}")
+                        # Display error message below the spinner
+                    error_placeholder.error(
+                        f"Failed to download data for: {_symlist}. Error: {e}"
+                    )
     
             # Update progress bar and status text after each chunk
             progress_bar.progress(progress)
