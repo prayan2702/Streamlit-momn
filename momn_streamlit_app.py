@@ -15,8 +15,8 @@ from json.decoder import JSONDecodeError
 
 #***********************
 # Hard-coded credentials
-USERNAME = "admin"
-PASSWORD = "password123"
+USERNAME = "prayan"
+PASSWORD = "prayan"
 
 # Initialize session state for login
 if "logged_in" not in st.session_state:
@@ -25,20 +25,36 @@ if "logged_in" not in st.session_state:
 # Login page function
 def login():
     st.title("Login to Momentum Ranking App")
+    
+    # Create a container for the login form and limit the width
+    with st.container():
+        # CSS to control form width
+        st.markdown("""
+            <style>
+                .login-form {
+                    max-width: 400px;
+                    margin: 0 auto;
+                    padding: 20px;
+                    border-radius: 8px;
+                    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+                }
+            </style>
+        """, unsafe_allow_html=True)
 
-    # Input fields for username and password
-    username = st.text_input("Username")
-    password = st.text_input("Password", type="password")
+        # Input fields for username and password
+        with st.form(key="login_form", clear_on_submit=True):
+            username = st.text_input("Username")
+            password = st.text_input("Password", type="password")
 
-    # Login button
-    if st.button("Login"):
-        if username == USERNAME and password == PASSWORD:
-            st.session_state.logged_in = True
-            st.success("Logged in successfully!")
-            st.rerun()  # Reload the app after login
-        else:
-            st.error("Invalid username or password")
-
+            # Login button
+            submit_button = st.form_submit_button(label="Login")
+            if submit_button:
+                if username == USERNAME and password == PASSWORD:
+                    st.session_state.logged_in = True
+                    st.success("Logged in successfully!")
+                    st.rerun()  # Reload the app after login
+                else:
+                    st.error("Invalid username or password")
 
 # Main app content function
 def app_content():
