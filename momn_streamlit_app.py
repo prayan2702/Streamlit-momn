@@ -26,7 +26,7 @@ if "logged_in" not in st.session_state:
 def login():
     st.title("Login to Momentum Ranking App")
     
-     # Create a container for the login form and limit the width
+    # Create a container for the login form and limit the width
     st.markdown("""
         <style>
             .login-form {
@@ -43,20 +43,21 @@ def login():
         </style>
     """, unsafe_allow_html=True)
 
-        # Input fields for username and password
-        with st.form(key="login_form", clear_on_submit=True):
-            username = st.text_input("Username")
-            password = st.text_input("Password", type="password")
 
-            # Login button
-            submit_button = st.form_submit_button(label="Login")
-            if submit_button:
-                if username == USERNAME and password == PASSWORD:
-                    st.session_state.logged_in = True
-                    st.success("Logged in successfully!")
-                    st.rerun()  # Reload the app after login
-                else:
-                    st.error("Invalid username or password")
+    # Input fields for username and password
+    with st.form(key="login_form", clear_on_submit=True):
+        username = st.text_input("Username")
+        password = st.text_input("Password", type="password")
+
+        # Login button
+        submit_button = st.form_submit_button(label="Login")
+        if submit_button:
+            if username == USERNAME and password == PASSWORD:
+                st.session_state.logged_in = True
+                st.success("Logged in successfully!")
+                st.rerun()  # Reload the app after login
+            else:
+                st.error("Invalid username or password")
 
 # Main app content function
 def app_content():
