@@ -226,7 +226,7 @@ if start_button:
         progress_percentage = int(progress * 100)
         status_text.text(f"Downloading... {progress_percentage}%")
 
-        time.sleep(2)
+        time.sleep(1)
 	
 
         # # Add random delay (2–5 seconds) between chunks
