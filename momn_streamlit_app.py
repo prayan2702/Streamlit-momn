@@ -242,10 +242,9 @@ def app_content():
                     if attempt == 2:
                         # st.write(f"Failed to download data for: {_symlist}. Error: {e}")
                         # Display error message below the spinner
-                        error_placeholder.error(
-                            f"Failed to download data for: {_symlist}. Error: {e}"
-                        )
-    
+                        error_message = f"Failed to download data for: {_symlist}. Error: {e}"
+                        error_placeholder.error(error_message)
+                    
             # Update progress bar and status text after each chunk
             progress_bar.progress(progress)
             progress_percentage = int(progress * 100)
