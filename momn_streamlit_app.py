@@ -32,7 +32,7 @@ def login():
         st.markdown("""
             <style>
                 .login-form {
-                    max-width: 400px;
+                    max-width: 300px;
                     margin: 0 auto;
                     padding: 20px;
                     border-radius: 6px;
