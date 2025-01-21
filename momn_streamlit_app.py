@@ -222,6 +222,9 @@ def app_content():
         # Track the number of stocks downloaded
         total_symbols = len(symbol)
         chunk_count = (total_symbols // CHUNK) + (1 if total_symbols % CHUNK != 0 else 0)
+
+        # List to store failed symbols for displaying all at the end
+        failed_symbols = []
     
         # Retry failed downloads without segregation
         for k in range(0, len(symbol), CHUNK):
