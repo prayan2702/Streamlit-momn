@@ -288,6 +288,12 @@ def app_content():
     
         st.write("All data download attempts are complete.")
 
+        # Remove duplicates from the failed_symbols list
+        failed_symbols = list(set(failed_symbols))
+        
+        # Debugging: Print the final list of failed symbols
+        st.write("Final failed symbols:", failed_symbols)
+
         # Display failed stocks at the end of the download
         if failed_symbols:
             st.warning("The following stocks failed to download:")
