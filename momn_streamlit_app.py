@@ -238,25 +238,29 @@ def app_content():
             # Process each chunk
             _symlist = symbol[k:k + CHUNK]
             for attempt in range(3):  # Retry up to 3 times
-                try:
-                    _x = download_chunk_with_retries(_symlist, dates['startDate'])
-                    # Check for missing 'Close' values and add to failed_symbols
-                    for ticker in _symlist:
-                        if ticker not in _x.loc[ticker, 'Close'].isnull().all():
-                            failed_symbols.append(ticker)
-                        else:
-                            # Append valid data
-                            close.append(_x.loc[ticker, 'Close'])
-                            high.append(_x.loc[ticker, 'High'])
-                            volume.append(_x.loc[ticker, 'Close'] * _x.loc[ticker, 'Volume'])
-                    break  # Exit retry loop if successful
-                except Exception as e:
-                    if attempt == 2:
-                        # Append failed symbols to the failed_symbols list
-                        failed_symbols.extend(_symlist)
-                        # Display error message below the spinner
-                        error_message = f"Failed to download data for: {_symlist}. Error: {e}"
-                        error_placeholder.error(error_message)
+            try:
+                _x = download_chunk_with_retries(_symlist, dates['startDate'])
+                
+                # Check for missing 'Close' values and add to failed_symbols
+                for ticker in _symlist:
+                    # Ensure ticker exists in the downloaded data and has valid Close values
+                    if ticker not in _x.index or _x['Close'][ticker].isnull().all():
+                        failed_symbols.append(ticker)
+                    else:
+                        # Append valid data
+                        close.append(_x.loc[ticker, 'Close'])
+                        high.append(_x.loc[ticker, 'High'])
+                        volume.append(_x.loc[ticker, 'Close'] * _x.loc[ticker, 'Volume'])
+                break  # Exit retry loop if successful
+    
+            except Exception as e:
+                if attempt == 2:
+                    # Append failed symbols to the failed_symbols list after retries
+                    failed_symbols.extend(_symlist)
+                    # Display error message below the spinner
+                    error_message = f"Failed to download data for: {_symlist}. Error: {e}"
+                    error_placeholder.error(error_message)
+
                     
             # Update progress bar and status text after each chunk
             progress_bar.progress(progress)
