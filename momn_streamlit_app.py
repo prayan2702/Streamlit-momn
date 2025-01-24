@@ -242,7 +242,7 @@ def app_content():
                     _x = download_chunk_with_retries(_symlist, dates['startDate'])
                     # Check for missing 'Close' values and add to failed_symbols
                     for ticker in _symlist:
-                        if ticker not in _x.index or _x.loc[ticker, 'Close'].isnull().all():
+                        if ticker not in _x.loc[ticker, 'Close'].isnull().all():
                             failed_symbols.append(ticker)
                         else:
                             # Append valid data
