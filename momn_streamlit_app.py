@@ -246,7 +246,8 @@ def app_content():
                     break  # Exit retry loop if successful
                 except Exception as e:
                     if attempt == 2:
-                        # st.write(f"Failed to download data for: {_symlist}. Error: {e}")
+                        # Append failed symbols to the failed_symbols list
+                        failed_symbols.extend(_symlist)
                         # Display error message below the spinner
                         error_message = f"Failed to download data for: {_symlist}. Error: {e}"
                         error_placeholder.error(error_message)
