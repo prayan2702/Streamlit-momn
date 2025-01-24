@@ -241,19 +241,23 @@ def app_content():
                 try:
                     _x = download_chunk_with_retries(_symlist, dates['startDate'])
                     
+                    # Debugging: Print the structure of the downloaded data
+                    st.write(f"Downloaded chunk: {_symlist}")
+                    st.write(_x.head())
+        
                     # Check for missing 'Close' values and add to failed_symbols only if they are truly missing
                     for ticker in _symlist:
                         if ticker in _x.index:  # Ensure the ticker is in the downloaded data
                             if _x.loc[ticker]['Close'].isnull().all():  # All 'Close' values are missing
                                 failed_symbols.append(ticker)
-                            else:
-                                # Append valid data
-                                close.append(_x.loc[ticker, 'Close'])
-                                high.append(_x.loc[ticker, 'High'])
-                                volume.append(_x.loc[ticker, 'Close'] * _x.loc[ticker, 'Volume'])
                         else:
                             # If ticker is completely missing from the data, mark it as failed
                             failed_symbols.append(ticker)
+                        # Append valid data only for successfully downloaded stocks
+                        if ticker in _x.index and not _x.loc[ticker]['Close'].isnull().all():
+                            close.append(_x.loc[ticker, 'Close'])
+                            high.append(_x.loc[ticker, 'High'])
+                            volume.append(_x.loc[ticker, 'Close'] * _x.loc[ticker, 'Volume'])
                     break  # Exit retry loop if successful
         
                 except Exception as e:
