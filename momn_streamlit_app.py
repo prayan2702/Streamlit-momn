@@ -206,6 +206,9 @@ def app_content():
                     delay *= 2  # Double the delay for each retry
                 else:
                     raise e
+
+    # List to store failed symbols for displaying all at the end
+    failed_symbols = []
     
     
     if start_button:
@@ -263,6 +266,13 @@ def app_content():
         status_text.text("Download complete!")
     
         st.write("All data download attempts are complete.")
+
+        # Display failed stocks at the end of the download
+        if failed_symbols:
+            st.warning("The following stocks failed to download:")
+            st.table(pd.DataFrame({"Failed Stocks": failed_symbols}))
+        else:
+            st.success("All stocks downloaded successfully!")
     
     
         # **********************************
