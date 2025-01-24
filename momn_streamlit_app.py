@@ -206,9 +206,6 @@ def app_content():
                     delay *= 2  # Double the delay for each retry
                 else:
                     raise e
-
-    # List to store failed symbols for displaying all at the end
-    failed_symbols = []
     
     
     if start_button:
@@ -217,17 +214,13 @@ def app_content():
         high = []
         volume = []
     
-        # Create a progress bar and placeholders for status text and error messages
+        # Create a progress bar
         progress_bar = st.progress(0)
         status_text = st.empty()  # Placeholder for progress text
-        error_placeholder = st.empty()  # Placeholder for error messages
     
         # Track the number of stocks downloaded
         total_symbols = len(symbol)
         chunk_count = (total_symbols // CHUNK) + (1 if total_symbols % CHUNK != 0 else 0)
-
-        # List to store failed symbols for displaying all at the end
-        failed_symbols = []
     
         # Retry failed downloads without segregation
         for k in range(0, len(symbol), CHUNK):
@@ -240,38 +233,14 @@ def app_content():
             for attempt in range(3):  # Retry up to 3 times
                 try:
                     _x = download_chunk_with_retries(_symlist, dates['startDate'])
-                    
-                    # Debugging: Print the downloaded data for the current chunk
-                    st.write(f"Downloaded chunk: {_symlist}")
-                    st.write(_x.tail())  # Show the last rows for verification
-        
-                    # Check for missing latest 'Close' values and add failed stocks accordingly
-                    for ticker in _symlist:
-                        if ticker in _x.index:  # Ensure the ticker is in the downloaded data
-                            latest_close = _x.loc[ticker, 'Close'].iloc[-1]  # Get the latest Close value
-                            if pd.isna(latest_close):  # Check if the latest Close value is NaN
-                                failed_symbols.append(ticker)
-                            else:
-                                # Append valid data
-                                close.append(_x.loc[ticker, 'Close'])
-                                high.append(_x.loc[ticker, 'High'])
-                                volume.append(_x.loc[ticker, 'Close'] * _x.loc[ticker, 'Volume'])
-                        else:
-                            # If the ticker is missing entirely from the data, add it to failed stocks
-                            failed_symbols.append(ticker)
-        
+                    close.append(_x['Close'])
+                    high.append(_x['High'])
+                    volume.append(_x['Close'] * _x['Volume'])
                     break  # Exit retry loop if successful
-
-        
                 except Exception as e:
                     if attempt == 2:
-                        # Append failed symbols to the failed_symbols list after retries
-                        failed_symbols.extend(_symlist)
-                        # Display error message below the spinner
-                        error_message = f"Failed to download data for: {_symlist}. Error: {e}"
-                        error_placeholder.error(error_message)
-
-                    
+                        st.write(f"Failed to download data for: {_symlist}. Error: {e}")
+    
             # Update progress bar and status text after each chunk
             progress_bar.progress(progress)
             progress_percentage = int(progress * 100)
@@ -287,19 +256,6 @@ def app_content():
         status_text.text("Download complete!")
     
         st.write("All data download attempts are complete.")
-
-        # Remove duplicates from the failed_symbols list
-        failed_symbols = list(set(failed_symbols))
-        
-        # Debugging: Print the final list of failed symbols
-        st.write("Final failed symbols:", failed_symbols)
-
-        # Display failed stocks at the end of the download
-        if failed_symbols:
-            st.warning("The following stocks failed to download:")
-            st.table(pd.DataFrame({"Failed Stocks": failed_symbols}))
-        else:
-            st.success("All stocks downloaded successfully!")
     
     
         # **********************************
