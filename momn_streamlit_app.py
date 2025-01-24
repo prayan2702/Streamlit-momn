@@ -240,9 +240,15 @@ def app_content():
             for attempt in range(3):  # Retry up to 3 times
                 try:
                     _x = download_chunk_with_retries(_symlist, dates['startDate'])
-                    close.append(_x['Close'])
-                    high.append(_x['High'])
-                    volume.append(_x['Close'] * _x['Volume'])
+                    # Check for missing 'Close' values and add to failed_symbols
+                    for ticker in _symlist:
+                        if ticker not in _x.index or _x.loc[ticker, 'Close'].isnull().all():
+                            failed_symbols.append(ticker)
+                        else:
+                            # Append valid data
+                            close.append(_x.loc[ticker, 'Close'])
+                            high.append(_x.loc[ticker, 'High'])
+                            volume.append(_x.loc[ticker, 'Close'] * _x.loc[ticker, 'Volume'])
                     break  # Exit retry loop if successful
                 except Exception as e:
                     if attempt == 2:
