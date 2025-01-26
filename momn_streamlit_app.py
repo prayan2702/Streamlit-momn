@@ -1,3 +1,4 @@
+#V6.0: added login page so indentation altered for whole code
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -768,34 +769,7 @@ def app_content():
     
                 # Find exit stocks (stocks in the current portfolio that are not in the top ranks)
                 exit_stocks = current_portfolio_tickers[~current_portfolio_tickers.isin(top_rank_tickers)]
-
-                #********************
-
-                # Determine reasons for exit
-                reason_for_exit = []
-                for stock in exit_stocks:
-                    reasons = []
-                    if dfStats.loc[stock, 'volm_cr'] <= 1:
-                        reasons.append("Volume < 1 crore")
-                    if dfStats.loc[stock, 'Close'] <= dfStats.loc[stock, 'dma200d']:
-                        reasons.append("Below 200-day DMA")
-                    if dfStats.loc[stock, 'roc12M'] <= 6.5:
-                        reasons.append("12M ROC <= 6.5%")
-                    if dfStats.loc[stock, 'circuit'] >= 20:
-                        reasons.append("Circuit >= 20")
-                    if dfStats.loc[stock, 'AWAY_ATH'] <= -25:
-                        reasons.append("Far from ATH (> 25%)")
-                    if dfStats.loc[stock, 'roc12M'] >= 1000:
-                        reasons.append("12M ROC > 10x")
-                    if (dfStats.loc[stock, 'roc1M'] / dfStats.loc[stock, 'roc12M'] * 100) >= 50:
-                        reasons.append("1M ROC/12M ROC >= 50%")
-                    if dfStats.loc[stock, 'Close'] <= 30:
-                        reasons.append("Price <= 30")
-                    if dfStats.loc[stock, 'circuit5'] > 10:
-                        reasons.append("5% circuit > 10 in 3 months")
-                    
-                    reason_for_exit.append(", ".join(reasons) if reasons else "No specific reason")
-                #**************
+    
                 # Display results using Streamlit
                 st.info("Portfolio Rebalancing:")
     
@@ -807,14 +781,13 @@ def app_content():
                 if len(entry_stocks) < num_sells:
                     # Use pd.concat to add None values to entry_stocks
                     entry_stocks = pd.concat([entry_stocks, pd.Series([None] * (num_sells - len(entry_stocks)))])
-                    
-                # Create rebalance table with "Reason for Exit"
-                    rebalance_table = pd.DataFrame({
-                        'S.No.': range(1, num_sells + 1),
-                        'Sell Stocks': exit_stocks.tolist(),
-                        'Reason for Exit': reason_for_exit,
-                        'Buy Stocks': entry_stocks.tolist()
-                    })
+    
+                # Create rebalance table
+                rebalance_table = pd.DataFrame({
+                    'S.No.': range(1, num_sells + 1),
+                    'Sell Stocks': exit_stocks.tolist(),
+                    'Buy Stocks': entry_stocks.tolist()
+                })
     
                 # Remove rows where both 'Sell' and 'Buy' are None, but keep rows where only one is None
                 rebalance_table = rebalance_table[
