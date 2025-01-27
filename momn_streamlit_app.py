@@ -814,7 +814,8 @@ def app_content():
 
                 # Print missing tickers for debugging
                 if missing_tickers:
-                    st.warning(f"The following exit stocks were not found in dfStats: {', '.join(missing_tickers)}")
+                    # Convert all missing tickers to strings to avoid join errors
+                    st.warning(f"The following exit stocks were not found in dfStats: {', '.join(map(str, missing_tickers))}")        
                     
                 # Limit the number of buy (entry) stocks to match the number of sell (exit) stocks
                 num_sells = len(exit_stocks)
