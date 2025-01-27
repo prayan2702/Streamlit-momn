@@ -762,30 +762,41 @@ def app_content():
                 entry_stocks = top_rank_tickers[~top_rank_tickers.isin(current_portfolio_tickers)]
                 exit_stocks = current_portfolio_tickers[~current_portfolio_tickers.isin(top_rank_tickers)]
         
-                # Determine reasons for exit
+                # Ensure all tickers in exit_stocks are valid and exist in dfStats
+                valid_exit_stocks = [stock for stock in exit_stocks if stock in dfStats.index]
+                
+                # Determine reasons for exit only for valid stocks
                 reason_for_exit = []
-                for stock in exit_stocks:
+                for stock in valid_exit_stocks:
                     reasons = []
-                    if dfStats.loc[stock, 'volm_cr'] <= 1:
-                        reasons.append("Volume < 1 crore")
-                    if dfStats.loc[stock, 'Close'] <= dfStats.loc[stock, 'dma200d']:
-                        reasons.append("Below 200-day DMA")
-                    if dfStats.loc[stock, 'roc12M'] <= 6.5:
-                        reasons.append("12M ROC <= 6.5%")
-                    if dfStats.loc[stock, 'circuit'] >= 20:
-                        reasons.append("Circuit >= 20")
-                    if dfStats.loc[stock, 'AWAY_ATH'] <= -25:
-                        reasons.append("Far from ATH (> 25%)")
-                    if dfStats.loc[stock, 'roc12M'] >= 1000:
-                        reasons.append("12M ROC > 10x")
-                    if (dfStats.loc[stock, 'roc1M'] / dfStats.loc[stock, 'roc12M'] * 100) >= 50:
-                        reasons.append("1M ROC/12M ROC >= 50%")
-                    if dfStats.loc[stock, 'Close'] <= 30:
-                        reasons.append("Price <= 30")
-                    if dfStats.loc[stock, 'circuit5'] > 10:
-                        reasons.append("5% circuit > 10 in 3 months")
+                    try:
+                        if dfStats.loc[stock, 'volm_cr'] <= 1:
+                            reasons.append("Volume < 1 crore")
+                        if dfStats.loc[stock, 'Close'] <= dfStats.loc[stock, 'dma200d']:
+                            reasons.append("Below 200-day DMA")
+                        if dfStats.loc[stock, 'roc12M'] <= 6.5:
+                            reasons.append("12M ROC <= 6.5%")
+                        if dfStats.loc[stock, 'circuit'] >= 20:
+                            reasons.append("Circuit >= 20")
+                        if dfStats.loc[stock, 'AWAY_ATH'] <= -25:
+                            reasons.append("Far from ATH (> 25%)")
+                        if dfStats.loc[stock, 'roc12M'] >= 1000:
+                            reasons.append("12M ROC > 10x")
+                        if (dfStats.loc[stock, 'roc1M'] / dfStats.loc[stock, 'roc12M'] * 100) >= 50:
+                            reasons.append("1M ROC/12M ROC >= 50%")
+                        if dfStats.loc[stock, 'Close'] <= 30:
+                            reasons.append("Price <= 30")
+                        if dfStats.loc[stock, 'circuit5'] > 10:
+                            reasons.append("5% circuit > 10 in 3 months")
+                    except KeyError:
+                        reasons.append("Ticker not found in dfStats")  # Additional safety check for missing rows
                     
                     reason_for_exit.append(", ".join(reasons) if reasons else "No specific reason")
+                
+                # Warn if any stocks were not found in dfStats
+                missing_stocks = set(exit_stocks) - set(valid_exit_stocks)
+                if missing_stocks:
+                    st.warning(f"The following stocks were not found in dfStats: {', '.join(missing_stocks)}")
         
                 # Ensure entry stocks match the length of exit stocks
                 num_sells = len(exit_stocks)
