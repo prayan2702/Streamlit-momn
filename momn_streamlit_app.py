@@ -766,12 +766,20 @@ def app_content():
     
                 # Find entry stocks (stocks in top ranks that are not in the current portfolio)
                 entry_stocks = top_rank_tickers[~top_rank_tickers.isin(current_portfolio_tickers)]
+
+                 # Debugging: Print mismatched tickers for investigation
+                missing_tickers = []
+                
+                # Ensure ticker consistency: Remove '.NS' suffix if present in dfStats
+                dfStats['Ticker'] = dfStats['Ticker'].str.replace('.NS', '', regex=False)
     
                 # Find exit stocks (stocks in the current portfolio that are not in the top ranks)
                 exit_stocks = current_portfolio_tickers[~current_portfolio_tickers.isin(top_rank_tickers)]
     
                 # Display results using Streamlit
-                st.info("Portfolio Rebalancing:")
+                st.info("Portfolio Rebalancing:")3
+
+               
 
                 # Create a DataFrame to store exit conditions
                 exit_conditions = []
@@ -799,10 +807,15 @@ def app_content():
                         if row['circuit5'] > 10:
                             conditions.append("circuit5 > 10")
                     else:
-                        conditions.append("Stock data not available")
+                        missing_tickers.append(stock)  # Track missing tickers
+                        conditions.append("Data missing in filtered universe")
                 
                     exit_conditions.append(", ".join(conditions))  # Combine all failing conditions
-    
+
+                # Print missing tickers for debugging
+                if missing_tickers:
+                    st.warning(f"The following exit stocks were not found in dfStats: {', '.join(missing_tickers)}")
+                    
                 # Limit the number of buy (entry) stocks to match the number of sell (exit) stocks
                 num_sells = len(exit_stocks)
                 entry_stocks = entry_stocks.head(num_sells)  # Limit Buy tickers to the number of Sell tickers
