@@ -772,6 +772,36 @@ def app_content():
     
                 # Display results using Streamlit
                 st.info("Portfolio Rebalancing:")
+
+                # Create a DataFrame to store exit conditions
+                exit_conditions = []
+                
+                for stock in exit_stocks:
+                    conditions = []
+                    if stock in dfStats['Ticker'].values:
+                        row = dfStats[dfStats['Ticker'] == stock].iloc[0]  # Get the row for the stock
+                        if row['volm_cr'] <= 1:
+                            conditions.append("volm_cr <= 1")
+                        if row['Close'] <= row['dma200d']:
+                            conditions.append("Close <= dma200d")
+                        if row['roc12M'] <= 6.5:
+                            conditions.append("roc12M <= 6.5")
+                        if row['circuit'] >= 20:
+                            conditions.append("circuit >= 20")
+                        if row['AWAY_ATH'] <= -25:
+                            conditions.append("AWAY_ATH <= -25")
+                        if row['roc12M'] >= 1000:
+                            conditions.append("roc12M >= 1000")
+                        if (row['roc1M'] / row['roc12M']) * 100 >= 50:
+                            conditions.append("roc1M / roc12M >= 50%")
+                        if row['Close'] <= 30:
+                            conditions.append("Close <= 30")
+                        if row['circuit5'] > 10:
+                            conditions.append("circuit5 > 10")
+                    else:
+                        conditions.append("Stock data not available")
+                
+                    exit_conditions.append(", ".join(conditions))  # Combine all failing conditions
     
                 # Limit the number of buy (entry) stocks to match the number of sell (exit) stocks
                 num_sells = len(exit_stocks)
@@ -786,9 +816,9 @@ def app_content():
                 rebalance_table = pd.DataFrame({
                     'S.No.': range(1, num_sells + 1),
                     'Sell Stocks': exit_stocks.tolist(),
-                    'Buy Stocks': entry_stocks.tolist()
+                    'Buy Stocks': entry_stocks.tolist(),
+                    'Exit Conditions': exit_conditions  # Add the exit conditions column
                 })
-    
                 # Remove rows where both 'Sell' and 'Buy' are None, but keep rows where only one is None
                 rebalance_table = rebalance_table[
                     ~((rebalance_table['Sell Stocks'].isna()) & (rebalance_table['Buy Stocks'].isna()))]
