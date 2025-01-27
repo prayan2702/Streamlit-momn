@@ -777,7 +777,7 @@ def app_content():
                 exit_stocks = current_portfolio_tickers[~current_portfolio_tickers.isin(top_rank_tickers)]
     
                 # Display results using Streamlit
-                st.info("Portfolio Rebalancing:")3
+                st.info("Portfolio Rebalancing:")
 
                
 
