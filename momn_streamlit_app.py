@@ -737,15 +737,15 @@ def app_content():
         )
     
         # **********************************************************
-    
+            
         # Assuming 'dfStats' has 'Rank' as the index and 'final_momentum' filter is applied
         filtered = dfStats[dfStats['final_momentum']].sort_values('Rank', ascending=True)
-    
+        
         # Dynamically determine the rank threshold based on the universe
         rank_threshold = 100 if U == 'AllNSE' else 75
         
         # Get the top ranks up to the dynamic threshold (either 75 or 100)
-        top_rank_tickers = filtered[filtered.index <= rank_threshold]['Ticker']
+        top_rank_tickers = filtered[filtered['Rank'] <= rank_threshold]['Ticker']
         
         # Fetch the current portfolio from the published CSV (Nifty50 Value)
         portfolio_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS4HDgiell4n1kd08OnlzOQobfPzeDtVyWJ8gETFlYbz27qhOmfqKZOoIXZItRQEq5ANATYIcZJm0gk/pub?output=csv"
@@ -756,7 +756,7 @@ def app_content():
             if 'Current Portfolio' not in portfolio_data.columns:
                 st.error("Column 'Current Portfolio' not found in the portfolio data.")
             else:
-                current_portfolio_tickers = portfolio_data['Current Portfolio']
+                current_portfolio_tickers = portfolio_data['Current Portfolio'].dropna()
         
                 # Find entry and exit stocks
                 entry_stocks = top_rank_tickers[~top_rank_tickers.isin(current_portfolio_tickers)]
@@ -764,7 +764,7 @@ def app_content():
         
                 # Ensure all tickers in exit_stocks are valid and exist in dfStats
                 valid_exit_stocks = [stock for stock in exit_stocks if stock in dfStats.index]
-                
+        
                 # Determine reasons for exit only for valid stocks
                 reason_for_exit = []
                 for stock in valid_exit_stocks:
@@ -792,7 +792,7 @@ def app_content():
                         reasons.append("Ticker not found in dfStats")  # Additional safety check for missing rows
                     
                     reason_for_exit.append(", ".join(reasons) if reasons else "No specific reason")
-                
+        
                 # Warn if any stocks were not found in dfStats
                 missing_stocks = set(exit_stocks) - set(valid_exit_stocks)
                 if missing_stocks:
@@ -802,12 +802,12 @@ def app_content():
                 num_sells = len(exit_stocks)
                 entry_stocks = entry_stocks.head(num_sells)
                 if len(entry_stocks) < num_sells:
-                    entry_stocks = pd.concat([entry_stocks, pd.Series([None] * (num_sells - len(entry_stocks)))])
+                    entry_stocks = pd.concat([entry_stocks, pd.Series([None] * (num_sells - len(entry_stocks)))], ignore_index=True)
         
                 # Create rebalance table with "Reason for Exit"
                 rebalance_table = pd.DataFrame({
                     'S.No.': range(1, num_sells + 1),
-                    'Sell Stocks': exit_stocks.tolist(),
+                    'Sell Stocks': valid_exit_stocks,
                     'Reason for Exit': reason_for_exit,
                     'Buy Stocks': entry_stocks.tolist()
                 })
