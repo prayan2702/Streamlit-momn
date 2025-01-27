@@ -738,90 +738,68 @@ def app_content():
     
         # **********************************************************
             
-        # Assuming 'dfStats' has 'Rank' as the index and 'final_momentum' filter is applied
+         # Assuming 'dfStats' has 'Rank' as the index and 'final_momentum' filter is applied
         filtered = dfStats[dfStats['final_momentum']].sort_values('Rank', ascending=True)
-        
+    
         # Dynamically determine the rank threshold based on the universe
         rank_threshold = 100 if U == 'AllNSE' else 75
-        
+    
         # Get the top ranks up to the dynamic threshold (either 75 or 100)
-        top_rank_tickers = filtered[filtered['Rank'] <= rank_threshold]['Ticker']
-        
+        top_rank_tickers = filtered[filtered.index <= rank_threshold]['Ticker']
+    
         # Fetch the current portfolio from the published CSV (Nifty50 Value)
         portfolio_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS4HDgiell4n1kd08OnlzOQobfPzeDtVyWJ8gETFlYbz27qhOmfqKZOoIXZItRQEq5ANATYIcZJm0gk/pub?output=csv"
-        
+    
+        # Start the spinner to indicate the process is running
         with st.spinner("Portfolio Rebalancing... Please wait..."):
+            # Simulate the delay of fetching and processing data (remove in actual code)
+    
+            # Read portfolio data
             portfolio_data = pd.read_csv(portfolio_url)
-        
+    
+            # Check if 'Current Portfolio' column exists in the portfolio CSV
             if 'Current Portfolio' not in portfolio_data.columns:
                 st.error("Column 'Current Portfolio' not found in the portfolio data.")
             else:
-                current_portfolio_tickers = portfolio_data['Current Portfolio'].dropna()
-        
-                # Find entry and exit stocks
+                # Assuming the portfolio has a 'Current Portfolio' column for holdings
+                current_portfolio_tickers = portfolio_data['Current Portfolio']
+    
+                # Find entry stocks (stocks in top ranks that are not in the current portfolio)
                 entry_stocks = top_rank_tickers[~top_rank_tickers.isin(current_portfolio_tickers)]
+    
+                # Find exit stocks (stocks in the current portfolio that are not in the top ranks)
                 exit_stocks = current_portfolio_tickers[~current_portfolio_tickers.isin(top_rank_tickers)]
-        
-                # Ensure all tickers in exit_stocks are valid and exist in dfStats
-                valid_exit_stocks = [stock for stock in exit_stocks if stock in dfStats.index]
-        
-                # Determine reasons for exit only for valid stocks
-                reason_for_exit = []
-                for stock in valid_exit_stocks:
-                    reasons = []
-                    try:
-                        if dfStats.loc[stock, 'volm_cr'] <= 1:
-                            reasons.append("Volume < 1 crore")
-                        if dfStats.loc[stock, 'Close'] <= dfStats.loc[stock, 'dma200d']:
-                            reasons.append("Below 200-day DMA")
-                        if dfStats.loc[stock, 'roc12M'] <= 6.5:
-                            reasons.append("12M ROC <= 6.5%")
-                        if dfStats.loc[stock, 'circuit'] >= 20:
-                            reasons.append("Circuit >= 20")
-                        if dfStats.loc[stock, 'AWAY_ATH'] <= -25:
-                            reasons.append("Far from ATH (> 25%)")
-                        if dfStats.loc[stock, 'roc12M'] >= 1000:
-                            reasons.append("12M ROC > 10x")
-                        if (dfStats.loc[stock, 'roc1M'] / dfStats.loc[stock, 'roc12M'] * 100) >= 50:
-                            reasons.append("1M ROC/12M ROC >= 50%")
-                        if dfStats.loc[stock, 'Close'] <= 30:
-                            reasons.append("Price <= 30")
-                        if dfStats.loc[stock, 'circuit5'] > 10:
-                            reasons.append("5% circuit > 10 in 3 months")
-                    except KeyError:
-                        reasons.append("Ticker not found in dfStats")  # Additional safety check for missing rows
-                    
-                    reason_for_exit.append(", ".join(reasons) if reasons else "No specific reason")
-        
-                # Warn if any stocks were not found in dfStats
-                missing_stocks = set(exit_stocks) - set(valid_exit_stocks)
-                if missing_stocks:
-                    st.warning(f"The following stocks were not found in dfStats: {', '.join(missing_stocks)}")
-        
-                # Ensure entry stocks match the length of exit stocks
+    
+                # Display results using Streamlit
+                st.info("Portfolio Rebalancing:")
+    
+                # Limit the number of buy (entry) stocks to match the number of sell (exit) stocks
                 num_sells = len(exit_stocks)
-                entry_stocks = entry_stocks.head(num_sells)
+                entry_stocks = entry_stocks.head(num_sells)  # Limit Buy tickers to the number of Sell tickers
+    
+                # If there are more sells than buys, fill the remaining buys with None or NaN
                 if len(entry_stocks) < num_sells:
-                    entry_stocks = pd.concat([entry_stocks, pd.Series([None] * (num_sells - len(entry_stocks)))], ignore_index=True)
-        
-                # Create rebalance table with "Reason for Exit"
+                    # Use pd.concat to add None values to entry_stocks
+                    entry_stocks = pd.concat([entry_stocks, pd.Series([None] * (num_sells - len(entry_stocks)))])
+    
+                # Create rebalance table
                 rebalance_table = pd.DataFrame({
                     'S.No.': range(1, num_sells + 1),
-                    'Sell Stocks': valid_exit_stocks,
-                    'Reason for Exit': reason_for_exit,
+                    'Sell Stocks': exit_stocks.tolist(),
                     'Buy Stocks': entry_stocks.tolist()
                 })
-        
-                # Remove rows where both 'Sell' and 'Buy' are None
+    
+                # Remove rows where both 'Sell' and 'Buy' are None, but keep rows where only one is None
                 rebalance_table = rebalance_table[
                     ~((rebalance_table['Sell Stocks'].isna()) & (rebalance_table['Buy Stocks'].isna()))]
-        
+    
                 # Set 'S.No.' as the index
                 rebalance_table.set_index('S.No.', inplace=True)
-        
+    
                 # Display rebalance table
                 st.dataframe(rebalance_table)
-        
+    
+        # After the spinner ends, show success message
         st.success("Portfolio Rebalancing completed!")
     # ***************************************************************
 if not st.session_state.logged_in:
