@@ -766,12 +766,23 @@ def app_content():
     
                 # Find entry stocks (stocks in top ranks that are not in the current portfolio)
                 entry_stocks = top_rank_tickers[~top_rank_tickers.isin(current_portfolio_tickers)]
-
-                 # Debugging: Print mismatched tickers for investigation
-                missing_tickers = []
                 
-                # Ensure ticker consistency: Remove '.NS' suffix if present in dfStats
-                dfStats['Ticker'] = dfStats['Ticker'].str.replace('.NS', '', regex=False)
+                # Ensure ticker format consistency between exit_stocks and dfStats
+                dfStats['Ticker'] = dfStats['Ticker'].str.replace('.NS', '', regex=False).str.strip().str.upper()
+                
+                # Exit stocks from the current portfolio
+                exit_stocks = current_portfolio_tickers.str.strip().str.upper()  # Standardize formatting
+                
+                # Check for missing tickers and debug
+                missing_tickers = [stock for stock in exit_stocks if stock not in dfStats['Ticker'].values]
+                
+                # Debugging: Print missing tickers for investigation
+                if missing_tickers:
+                    st.warning(f"The following exit stocks were not found in dfStats: {', '.join(map(str, missing_tickers))}")
+                
+                # Print samples for comparison
+                st.write("Sample dfStats Tickers:", dfStats['Ticker'].head(10).tolist())
+                st.write("Sample Exit Stocks:", exit_stocks.head(10).tolist())
     
                 # Find exit stocks (stocks in the current portfolio that are not in the top ranks)
                 exit_stocks = current_portfolio_tickers[~current_portfolio_tickers.isin(top_rank_tickers)]
