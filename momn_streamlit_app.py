@@ -282,7 +282,7 @@ def app_content():
     
         # Display the list of failed download stocks
         if failed_download_stocks:
-            st.warning("The following stocks failed to download (blank or 0 data in volm_cr):")
+            st.warning("The following stocks failed to download (blank volume data fetched):")
             st.write(failed_download_stocks)
         else:
             st.success("All stocks downloaded successfully!")
