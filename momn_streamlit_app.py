@@ -1,4 +1,5 @@
 #V6.0: added login page so indentation altered for whole code
+#V7.0: added Reason for exit after portfolio rebalancing
 import streamlit as st
 import pandas as pd
 import numpy as np
