@@ -194,10 +194,10 @@ def app_content():
     
     st.write(f"Chunk size set to {CHUNK} for universe: {U}")
     
-    # Add a button to start the process
+     # Add a button to start the process
     start_button = st.button("Start Data Download")
     
-    
+    # Function to download data with retries
     def download_chunk_with_retries(symbols, start_date, max_retries=3, delay=2):
         for attempt in range(max_retries):
             try:
@@ -209,6 +209,8 @@ def app_content():
                 else:
                     raise e
     
+    # Track failed symbols
+    failed_symbols = []
     
     if start_button:
         # Download data when the button is pressed
@@ -242,6 +244,7 @@ def app_content():
                 except Exception as e:
                     if attempt == 2:
                         st.write(f"Failed to download data for: {_symlist}. Error: {e}")
+                        failed_symbols.extend(_symlist)  # Add failed symbols to the list
     
             # Update progress bar and status text after each chunk
             progress_bar.progress(progress)
@@ -250,15 +253,18 @@ def app_content():
     
             time.sleep(1.5)
     
-            # # Add random delay (2–5 seconds) between chunks
-            # time.sleep(random.uniform(2, 5))
-    
         # After the download is complete, update the progress bar and text
         progress_bar.progress(1.0)
         status_text.text("Download complete!")
     
-        st.write("All data download attempts are complete.")
+        # Display the list of failed symbols below the progress bar
+        if failed_symbols:
+            st.warning("The following stocks failed to download:")
+            st.write(failed_symbols)
+        else:
+            st.success("All stocks downloaded successfully!")
     
+        st.write("All data download attempts are complete.")
     
         # **********************************
         # Function to calculate next rebalance date
