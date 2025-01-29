@@ -277,8 +277,8 @@ def app_content():
         # Identify stocks with blank or 0 data in the volm_cr column
         failed_download_stocks = median_volume[median_volume.isna() | (median_volume == 0)].index.tolist()
     
-        # Remove the .NS suffix from the ticker names
-        failed_download_stocks = [ticker.replace('.NS', '') for ticker in failed_download_stocks]
+        # # Remove the .NS suffix from the ticker names
+        # failed_download_stocks = [ticker.replace('.NS', '') for ticker in failed_download_stocks]
     
         # Display the list of failed download stocks
         if failed_download_stocks:
