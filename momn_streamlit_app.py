@@ -790,6 +790,10 @@ def app_content():
                     reasons = []
                     stock_data = dfStats[dfStats['Ticker'] == ticker]
                     if len(stock_data) > 0:
+                        # Check rank threshold condition
+                        if stock_data.index[0] > rank_threshold:
+                            reasons.append(f"Rank > {rank_threshold}")
+                        # Check other conditions
                         if stock_data['volm_cr'].values[0] <= 1:
                             reasons.append("Volume <= 1 crore")
                         if stock_data['Close'].values[0] <= stock_data['dma200d'].values[0]:
@@ -809,6 +813,9 @@ def app_content():
                         if stock_data['circuit5'].values[0] > 10:
                             reasons.append("5% Circuit hits > 10")
                     reasons_for_exit.append(", ".join(reasons) if reasons else "No specific reason")
+        
+                # Add blank reasons for rows where sell stocks are None
+                reasons_for_exit.extend([""] * (len(entry_stocks) - len(reasons_for_exit)))
         
                 # Create rebalance table
                 rebalance_table = pd.DataFrame({
