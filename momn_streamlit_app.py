@@ -209,7 +209,7 @@ def app_content():
                 else:
                     raise e
     
-    # Track failed symbols and their error messages
+    # Track failed symbols
     failed_symbols = []
     
     if start_button:
@@ -244,9 +244,7 @@ def app_content():
                 except Exception as e:
                     if attempt == 2:
                         # Log the error and add the failed symbols to the list
-                        error_message = f"Failed to download data for: {_symlist}. Error: {str(e)}"
-                        st.error(error_message)  # Display error in the main app interface
-                        failed_symbols.append((_symlist, str(e)))  # Store failed symbols and their error messages
+                        failed_symbols.extend(_symlist)  # Add failed symbols to the list
     
             # Update progress bar and status text after each chunk
             progress_bar.progress(progress)
@@ -259,11 +257,10 @@ def app_content():
         progress_bar.progress(1.0)
         status_text.text("Download complete!")
     
-        # Display the list of failed symbols and their error messages below the progress bar
+        # Display the list of failed symbols below the progress bar
         if failed_symbols:
             st.warning("The following stocks failed to download:")
-            for symbols, error in failed_symbols:
-                st.write(f"- **{', '.join(symbols)}**: {error}")
+            st.write(failed_symbols)  # Display the list of failed stock names
         else:
             st.success("All stocks downloaded successfully!")
     
