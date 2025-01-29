@@ -285,7 +285,17 @@ def app_content():
         # Display the list of failed download stocks
         if failed_download_stocks:
             st.warning("The following stocks failed to download (blank volume data fetched):")
-            st.write(failed_download_stocks)
+            # Create a DataFrame for the failed download stocks
+            failed_download_table = pd.DataFrame({
+                'S.No.': range(1, len(failed_download_stocks) + 1),
+                'Failed Stocks': failed_download_stocks
+            })
+            
+            # Set 'S.No.' as the index
+            failed_download_table.set_index('S.No.', inplace=True)
+            
+            # Display the table using st.dataframe
+            st.dataframe(failed_download_table)
         else:
             st.success("All stocks downloaded successfully!")
     
