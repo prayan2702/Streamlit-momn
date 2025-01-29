@@ -193,8 +193,8 @@ def app_content():
         CHUNK = 50  # Default chunk size for other universes
     
     st.write(f"Chunk size set to {CHUNK} for universe: {U}")
-    
-     # Add a button to start the process
+        
+    # Add a button to start the process
     start_button = st.button("Start Data Download")
     
     # Function to download data with retries
@@ -209,7 +209,7 @@ def app_content():
                 else:
                     raise e
     
-    # Track failed symbols
+    # Track failed symbols and their error messages
     failed_symbols = []
     
     if start_button:
@@ -243,8 +243,10 @@ def app_content():
                     break  # Exit retry loop if successful
                 except Exception as e:
                     if attempt == 2:
-                        st.write(f"Failed to download data for: {_symlist}. Error: {e}")
-                        failed_symbols.extend(_symlist)  # Add failed symbols to the list
+                        # Log the error and add the failed symbols to the list
+                        error_message = f"Failed to download data for: {_symlist}. Error: {str(e)}"
+                        st.error(error_message)  # Display error in the main app interface
+                        failed_symbols.append((_symlist, str(e)))  # Store failed symbols and their error messages
     
             # Update progress bar and status text after each chunk
             progress_bar.progress(progress)
@@ -257,10 +259,11 @@ def app_content():
         progress_bar.progress(1.0)
         status_text.text("Download complete!")
     
-        # Display the list of failed symbols below the progress bar
+        # Display the list of failed symbols and their error messages below the progress bar
         if failed_symbols:
             st.warning("The following stocks failed to download:")
-            st.write(failed_symbols)
+            for symbols, error in failed_symbols:
+                st.write(f"- **{', '.join(symbols)}**: {error}")
         else:
             st.success("All stocks downloaded successfully!")
     
