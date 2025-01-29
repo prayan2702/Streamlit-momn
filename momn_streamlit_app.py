@@ -1,6 +1,6 @@
 #V6.0: added login page so indentation altered for whole code
 #V7.0: added Reason for exit after portfolio rebalancing
-#V8.0: added failed stock download by analyzing volm_cr column blank
+#V8.0: added failed stock download List by analyzing volm_cr column blank
 import streamlit as st
 import pandas as pd
 import numpy as np
