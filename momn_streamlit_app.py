@@ -812,7 +812,7 @@ def app_content():
                             reasons.append("Close <= 30")
                         if stock_data['circuit5'].values[0] > 10:
                             reasons.append("5% Circuit hits > 10")
-                    reasons_for_exit.append(", ".join(reasons) if reasons else "No specific reason")
+                    reasons_for_exit.append(", ".join(reasons) if reasons else "")
         
                 # Add blank reasons for rows where sell stocks are None
                 reasons_for_exit.extend([""] * (len(entry_stocks) - len(reasons_for_exit)))
