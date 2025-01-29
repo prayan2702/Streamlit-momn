@@ -245,7 +245,6 @@ def app_content():
                     if attempt == 2:
                         # Log the error and add the failed symbols to the list
                         failed_symbols.extend(_symlist)  # Add failed symbols to the list
-                        st.error(f"Failed to download data for: {_symlist}")  # Display error in the main app interface
     
             # Update progress bar and status text after each chunk
             progress_bar.progress(progress)
@@ -258,10 +257,33 @@ def app_content():
         progress_bar.progress(1.0)
         status_text.text("Download complete!")
     
-        # Display the list of failed symbols below the progress bar
-        if failed_symbols:
-            st.warning("The following stocks failed to download:")
-            st.write(failed_symbols)  # Display the list of failed stock names
+        # Convert close, high, and volume lists to DataFrames
+        close = pd.concat(close, axis=1) if close else pd.DataFrame()
+        high = pd.concat(high, axis=1) if high else pd.DataFrame()
+        volume = pd.concat(volume, axis=1) if volume else pd.DataFrame()
+    
+        # Ensure the index is datetime
+        close.index = pd.to_datetime(close.index)
+        high.index = pd.to_datetime(high.index)
+        volume.index = pd.to_datetime(volume.index)
+    
+        # At least 12 months of trading is required
+        data12M = close.loc[dates['date12M']:].copy()
+        volume12M = volume.loc[dates['date12M']:].copy()
+    
+        # Calculate median volume for each stock
+        median_volume = volume12M.median()
+    
+        # Identify stocks with blank or 0 data in the volm_cr column
+        failed_download_stocks = median_volume[median_volume.isna() | (median_volume == 0)].index.tolist()
+    
+        # Remove the .NS suffix from the ticker names
+        failed_download_stocks = [ticker.replace('.NS', '') for ticker in failed_download_stocks]
+    
+        # Display the list of failed download stocks
+        if failed_download_stocks:
+            st.warning("The following stocks failed to download (blank or 0 data in volm_cr):")
+            st.write(failed_download_stocks)
         else:
             st.success("All stocks downloaded successfully!")
     
