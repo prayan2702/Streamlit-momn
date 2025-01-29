@@ -277,8 +277,8 @@ def app_content():
         # Identify stocks with blank or 0 data in the volm_cr column
         failed_download_stocks = median_volume[median_volume.isna() | (median_volume == 0)].index.tolist()
     
-        # # Remove the .NS suffix from the ticker names
-        # failed_download_stocks = [ticker.replace('.NS', '') for ticker in failed_download_stocks]
+        # Remove the .NS suffix from the ticker names
+        failed_download_stocks = [ticker.replace('.NS', '') for ticker in failed_download_stocks]
     
         # Display the list of failed download stocks
         if failed_download_stocks:
@@ -358,15 +358,15 @@ def app_content():
         # if failed_symbols:
         #     st.write(f"Failed to download data for the following symbols: {', '.join(failed_symbols)}")
     
-        # Convert close, high, and volume lists to DataFrames
-        close = pd.concat(close, axis=1) if close else pd.DataFrame()
-        high = pd.concat(high, axis=1) if high else pd.DataFrame()
-        volume = pd.concat(volume, axis=1) if volume else pd.DataFrame()
+        # # Convert close, high, and volume lists to DataFrames
+        # close = pd.concat(close, axis=1) if close else pd.DataFrame()
+        # high = pd.concat(high, axis=1) if high else pd.DataFrame()
+        # volume = pd.concat(volume, axis=1) if volume else pd.DataFrame()
     
-        # Ensure the index is datetime
-        close.index = pd.to_datetime(close.index)
-        high.index = pd.to_datetime(high.index)
-        volume.index = pd.to_datetime(volume.index)
+        # # Ensure the index is datetime
+        # close.index = pd.to_datetime(close.index)
+        # high.index = pd.to_datetime(high.index)
+        # volume.index = pd.to_datetime(volume.index)
     
         data20Y = close.loc[:dates['endDate']].copy()
         volume20Y = volume.loc[:dates['endDate']].copy()
