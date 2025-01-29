@@ -812,6 +812,9 @@ def app_content():
                             reasons.append("Close <= 30")
                         if stock_data['circuit5'].values[0] > 10:
                             reasons.append("5% Circuit hits > 10")
+                    else:
+                        # If the stock is not in the selected universe, add this reason
+                        reasons.append("Stock not in selected universe")
                     reasons_for_exit.append(", ".join(reasons) if reasons else "")
         
                 # Add blank reasons for rows where sell stocks are None
