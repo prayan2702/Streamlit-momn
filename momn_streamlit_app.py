@@ -787,37 +787,40 @@ def app_content():
         
                 # Check which conditions are not met for each exit stock
                 for ticker in exit_stocks:
-                    reasons = []
-                    stock_data = dfStats[dfStats['Ticker'] == ticker]
-                    if len(stock_data) > 0:
-                        # Check rank threshold condition
-                        if stock_data.index[0] > rank_threshold:
-                            reasons.append(f"Rank > {rank_threshold}")
-                        # Check other conditions
-                        if stock_data['volm_cr'].values[0] <= 1:
-                            reasons.append("Volume <= 1 crore")
-                        if stock_data['Close'].values[0] <= stock_data['dma200d'].values[0]:
-                            reasons.append("Close <= 200-day DMA")
-                        if stock_data['roc12M'].values[0] <= 6.5:
-                            reasons.append("12M ROC <= 6.5%")
-                        if stock_data['circuit'].values[0] >= 20:
-                            reasons.append("Circuit hits >= 20")
-                        if stock_data['AWAY_ATH'].values[0] <= -25:
-                            reasons.append("Away from ATH <= -25%")
-                        if stock_data['roc12M'].values[0] >= 1000:
-                            reasons.append("12M ROC >= 1000%")
-                        if (stock_data['roc1M'].values[0] / stock_data['roc12M'].values[0] * 100) >= 50:
-                            reasons.append("1M ROC / 12M ROC >= 50%")
-                        if stock_data['Close'].values[0] <= 30:
-                            reasons.append("Close <= 30")
-                        if stock_data['circuit5'].values[0] > 10:
-                            reasons.append("5% Circuit hits > 10")
+                    if pd.isna(ticker) or ticker == "":  # If sell stock is None or blank, reason is blank
+                        reasons_for_exit.append("")
                     else:
-                        # If the stock is not in the selected universe, add this reason
-                        reasons.append("Stock not in selected universe")
-                    reasons_for_exit.append(", ".join(reasons) if reasons else "")
+                        reasons = []
+                        stock_data = dfStats[dfStats['Ticker'] == ticker]
+                        if len(stock_data) > 0:
+                            # Check rank threshold condition
+                            if stock_data.index[0] > rank_threshold:
+                                reasons.append(f"Rank > {rank_threshold}")
+                            # Check other conditions
+                            if stock_data['volm_cr'].values[0] <= 1:
+                                reasons.append("Volume <= 1 crore")
+                            if stock_data['Close'].values[0] <= stock_data['dma200d'].values[0]:
+                                reasons.append("Close <= 200-day DMA")
+                            if stock_data['roc12M'].values[0] <= 6.5:
+                                reasons.append("12M ROC <= 6.5%")
+                            if stock_data['circuit'].values[0] >= 20:
+                                reasons.append("Circuit hits >= 20")
+                            if stock_data['AWAY_ATH'].values[0] <= -25:
+                                reasons.append("Away from ATH <= -25%")
+                            if stock_data['roc12M'].values[0] >= 1000:
+                                reasons.append("12M ROC >= 1000%")
+                            if (stock_data['roc1M'].values[0] / stock_data['roc12M'].values[0] * 100) >= 50:
+                                reasons.append("1M ROC / 12M ROC >= 50%")
+                            if stock_data['Close'].values[0] <= 30:
+                                reasons.append("Close <= 30")
+                            if stock_data['circuit5'].values[0] > 10:
+                                reasons.append("5% Circuit hits > 10")
+                        else:
+                            # If the stock is not in the selected universe, add this reason
+                            reasons.append("Stock not in selected universe")
+                        reasons_for_exit.append(", ".join(reasons) if reasons else "")
         
-                # Add blank reasons for rows where sell stocks are None
+                # Add blank reasons for rows where sell stocks are None or blank
                 reasons_for_exit.extend([""] * (len(entry_stocks) - len(reasons_for_exit)))
         
                 # Create rebalance table
