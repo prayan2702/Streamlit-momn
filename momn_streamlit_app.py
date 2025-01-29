@@ -245,6 +245,7 @@ def app_content():
                     if attempt == 2:
                         # Log the error and add the failed symbols to the list
                         failed_symbols.extend(_symlist)  # Add failed symbols to the list
+                        st.error(f"Failed to download data for: {_symlist}")  # Display error in the main app interface
     
             # Update progress bar and status text after each chunk
             progress_bar.progress(progress)
@@ -265,7 +266,7 @@ def app_content():
             st.success("All stocks downloaded successfully!")
     
         st.write("All data download attempts are complete.")
-    
+        
         # **********************************
         # Function to calculate next rebalance date
         def get_next_rebalance_date(current_date):
