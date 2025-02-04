@@ -231,12 +231,14 @@ def app_content():
             import requests
             api_key = "XGZV13RY5WZVJW8Y"  # Replace with your API key
             data = {}
+                
             for symbol in symbols:
-            # Remove the .NS suffix for Alpha Vantage
-            symbol_clean = symbol.replace('.NS', '')
-            for symbol in symbols:
-                url = f"https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol={symbol}&apikey={api_key}"
+                # Remove the .NS suffix for Alpha Vantage
+                symbol_clean = symbol.replace('.NS', '')
+                
+                url = f"https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol={symbol_clean}&apikey={api_key}"
                 response = requests.get(url)
+                
                 if response.status_code == 200:
                     json_data = response.json()
                     
@@ -253,10 +255,10 @@ def app_content():
                     data[symbol] = df["4. close"]  # Use closing prices
                 else:
                     raise Exception(f"Failed to fetch data for {symbol_clean}. Status code: {response.status_code}")
+            
             return pd.DataFrame(data)
         except Exception as e:
             raise e
-    
     # Function to download data based on selected data source
     def download_data(symbols, start_date):
         if data_source_options[selected_data_source] == "yfinance":
