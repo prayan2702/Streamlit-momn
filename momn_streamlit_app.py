@@ -15,7 +15,6 @@ from openpyxl.styles import PatternFill, Font, Alignment
 from openpyxl.styles.borders import Border, Side
 from openpyxl import load_workbook
 from json.decoder import JSONDecodeError
-import requests
 
 #***********************
 # Hard-coded credentials
@@ -196,22 +195,11 @@ def app_content():
     
     st.write(f"Chunk size set to {CHUNK} for universe: {U}")
         
-    # Add a dropdown to select the data source
-    data_source_options = {
-        "Yahoo Finance": "yfinance",
-        "Alternate Source (e.g., Alpha Vantage)": "alternate"
-    }
-    selected_data_source = st.selectbox(
-        "Select Data Source",
-        options=list(data_source_options.keys()),
-        index=0  # Default to Yahoo Finance
-    )
-    
     # Add a button to start the process
     start_button = st.button("Start Data Download")
     
-    # Function to download data from Yahoo Finance with retries
-    def download_yahoo_finance(symbols, start_date, max_retries=3, delay=2):
+    # Function to download data with retries
+    def download_chunk_with_retries(symbols, start_date, max_retries=3, delay=2):
         for attempt in range(max_retries):
             try:
                 return yf.download(symbols, start=start_date, progress=False)
@@ -221,40 +209,6 @@ def app_content():
                     delay *= 2  # Double the delay for each retry
                 else:
                     raise e
-    
-    # Function to download data from alternate source (e.g., Alpha Vantage)
-    def download_alternate_source(symbols, start_date):
-        # Replace this with your alternate data source logic
-        # Example: Using Alpha Vantage API
-        try:
-            # Example API call (replace with actual API logic)
-            import requests
-            api_key = "XGZV13RY5WZVJW8Y"  # Replace with your API key
-            data = {}
-            for symbol in symbols:
-                url = f"https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol={symbol}&apikey={api_key}"
-                response = requests.get(url)
-                if response.status_code == 200:
-                    json_data = response.json()
-                    # Process the JSON data into a DataFrame
-                    df = pd.DataFrame(json_data["Time Series (Daily)"]).T
-                    df.index = pd.to_datetime(df.index)
-                    df = df.astype(float)
-                    data[symbol] = df["4. close"]  # Use closing prices
-                else:
-                    raise Exception(f"Failed to fetch data for {symbol} from alternate source")
-            return pd.DataFrame(data)
-        except Exception as e:
-            raise e
-    
-    # Function to download data based on selected data source
-    def download_data(symbols, start_date):
-        if data_source_options[selected_data_source] == "yfinance":
-            return download_yahoo_finance(symbols, start_date)
-        elif data_source_options[selected_data_source] == "alternate":
-            return download_alternate_source(symbols, start_date)
-        else:
-            raise ValueError("Invalid data source selected")
     
     # Track failed symbols
     failed_symbols = []
@@ -281,15 +235,17 @@ def app_content():
     
             # Process each chunk
             _symlist = symbol[k:k + CHUNK]
-            try:
-                _x = download_data(_symlist, dates['startDate'])
-                close.append(_x['Close'])
-                high.append(_x['High'])
-                volume.append(_x['Close'] * _x['Volume'])
-            except Exception as e:
-                # Log the error and add the failed symbols to the list
-                failed_symbols.extend(_symlist)  # Add failed symbols to the list
-                st.error(f"Failed to download data for: {_symlist}. Error: {str(e)}")
+            for attempt in range(3):  # Retry up to 3 times
+                try:
+                    _x = download_chunk_with_retries(_symlist, dates['startDate'])
+                    close.append(_x['Close'])
+                    high.append(_x['High'])
+                    volume.append(_x['Close'] * _x['Volume'])
+                    break  # Exit retry loop if successful
+                except Exception as e:
+                    if attempt == 2:
+                        # Log the error and add the failed symbols to the list
+                        failed_symbols.extend(_symlist)  # Add failed symbols to the list
     
             # Update progress bar and status text after each chunk
             progress_bar.progress(progress)
@@ -320,15 +276,15 @@ def app_content():
         median_volume = volume12M.median()
     
         # Identify stocks with blank or 0 data in the volm_cr column
-        failed_download_stocks = median_volume[median_volume.isna() | (median_volume == 0)].index.tolist()
+        # failed_download_stocks = median_volume[median_volume.isna() | (median_volume == 0)].index.tolist()
+        failed_download_stocks = median_volume[median_volume.isna()].index.tolist()
     
         # Remove the .NS suffix from the ticker names
         failed_download_stocks = [ticker.replace('.NS', '') for ticker in failed_download_stocks]
     
-        # Display the list of failed download stocks in a table format
+        # Display the list of failed download stocks
         if failed_download_stocks:
-            st.warning("The following stocks failed to download (blank or 0 data in volm_cr):")
-            
+            st.warning("The following stocks failed to download (blank volume data fetched):")
             # Create a DataFrame for the failed download stocks
             failed_download_table = pd.DataFrame({
                 'S.No.': range(1, len(failed_download_stocks) + 1),
