@@ -5,6 +5,9 @@ on:
     - cron: '30 11 * * 1-5'  # Runs at 5:00 PM IST (11:30 AM UTC) Monday-Friday
   workflow_dispatch:  # Allows manual trigger from GitHub Actions
 
+permissions:
+  contents: write  # ✅ Grants write access to GITHUB_TOKEN
+
 jobs:
   run-app:
     runs-on: ubuntu-latest
