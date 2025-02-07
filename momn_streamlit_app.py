@@ -15,6 +15,9 @@ from openpyxl.styles import PatternFill, Font, Alignment
 from openpyxl.styles.borders import Border, Side
 from openpyxl import load_workbook
 from json.decoder import JSONDecodeError
+import os
+import subprocess
+import requests
 
 #***********************
 # Hard-coded credentials
@@ -46,6 +49,24 @@ def login():
 
 # Main app content function
 def app_content():
+    #**********************
+    # GitHub raw file URL (Replace with your actual repository details)
+    RAW_GITHUB_FILE = "https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/momentum_output.csv"
+    
+    def load_last_output():
+        """Fetches the latest stored momentum ranking from GitHub and displays it."""
+        try:
+            response = requests.get(RAW_GITHUB_FILE)
+            if response.status_code == 200:
+                import io
+                df = pd.read_csv(io.StringIO(response.text))
+                st.info("Displaying latest stored result from GitHub:")
+                st.dataframe(df)
+            else:
+                st.warning("No previous result found on GitHub. Please run manually.")
+        except Exception as e:
+            st.error(f"Error loading saved output: {e}")
+    #**************************
 
     @st.cache_data(ttl=0)  # Caching har baar bypass hoga
     def getMedianVolume(data):
@@ -134,6 +155,8 @@ def app_content():
         return beta
 
     st.title("Momentum Ranking App")
+    # Load the latest saved output from GitHub when the app starts
+    load_last_output()
 
     import warnings
     warnings.simplefilter(action='ignore', category=FutureWarning)
@@ -516,7 +539,31 @@ def app_content():
     
         # Filter stocks meeting all conditions
         filtered = dfStats[dfStats['final_momentum']].sort_values('Rank', ascending=True)
-    
+
+        #*******************************
+        # Define GitHub storage path
+        storage_path = "momentum_output.csv"
+        
+        # Save the filtered momentum ranking output
+        filtered.to_csv(storage_path, index=False)
+        
+        # GitHub repository details
+        GITHUB_REPO = "https://github.com/prayan2702/Streamlit-momn.git"
+        GITHUB_BRANCH = "main"  # Change if needed
+        COMMIT_MESSAGE = "Auto-update: Latest momentum ranking output"
+        
+        try:
+            subprocess.run(["git", "config", "--global", "user.email", "gavel.rajesh@gmail.com"], check=True)
+            subprocess.run(["git", "config", "--global", "user.name", "GitHub Actions"], check=True)
+            subprocess.run(["git", "add", storage_path], check=True)
+            subprocess.run(["git", "commit", "-m", COMMIT_MESSAGE], check=True)
+            subprocess.run(["git", "push", GITHUB_REPO, GITHUB_BRANCH], check=True)
+            st.success("Latest output saved to GitHub!")
+        except Exception as e:
+            st.error(f"Error saving output to GitHub: {e}")
+
+        
+        #*******************************
         st.info("Filtered Data:")
         st.write(filtered)
     
