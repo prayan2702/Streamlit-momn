@@ -5,9 +5,6 @@ on:
     - cron: '30 11 * * 1-5'  # Runs at 5:00 PM IST (11:30 AM UTC) Monday-Friday
   workflow_dispatch:  # Allows manual trigger from GitHub Actions
 
-permissions:
-  contents: write  # ✅ Grants write access to GITHUB_TOKEN
-
 jobs:
   run-app:
     runs-on: ubuntu-latest
@@ -29,10 +26,11 @@ jobs:
 
       - name: Commit and Push Results
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_PAT: ${{ secrets.GITHUB_PAT }}  # 👈 GitHub Token Use Karna
         run: |
           git config --global user.email "gavel.rajesh@gmail.com"
           git config --global user.name "GitHub Actions"
           git add momentum_output.csv
           git commit -m "Auto-update: Latest momentum ranking output" || echo "No changes to commit"
-          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/prayan2702/Streamlit-momn.git
+          git remote set-url origin https://x-access-token:${GITHUB_PAT}@github.com/prayan2702/Streamlit-momn.git
+          git push origin main
