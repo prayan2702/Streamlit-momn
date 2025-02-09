@@ -15,9 +15,6 @@ from openpyxl.styles import PatternFill, Font, Alignment
 from openpyxl.styles.borders import Border, Side
 from openpyxl import load_workbook
 from json.decoder import JSONDecodeError
-import os
-import subprocess
-import requests
 
 #***********************
 # Hard-coded credentials
@@ -49,24 +46,6 @@ def login():
 
 # Main app content function
 def app_content():
-    #**********************
-    # GitHub raw file URL (Replace with your actual repository details)
-    RAW_GITHUB_FILE = "https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/momentum_output.csv"
-    
-    def load_last_output():
-        """Fetches the latest stored momentum ranking from GitHub and displays it."""
-        try:
-            response = requests.get(RAW_GITHUB_FILE)
-            if response.status_code == 200:
-                import io
-                df = pd.read_csv(io.StringIO(response.text))
-                st.info("Displaying latest stored result from GitHub:")
-                st.dataframe(df)
-            else:
-                st.warning("No previous result found on GitHub. Please run manually.")
-        except Exception as e:
-            st.error(f"Error loading saved output: {e}")
-    #**************************
 
     @st.cache_data(ttl=0)  # Caching har baar bypass hoga
     def getMedianVolume(data):
@@ -155,8 +134,6 @@ def app_content():
         return beta
 
     st.title("Momentum Ranking App")
-    # Load the latest saved output from GitHub when the app starts
-    load_last_output()
 
     import warnings
     warnings.simplefilter(action='ignore', category=FutureWarning)
@@ -539,28 +516,7 @@ def app_content():
     
         # Filter stocks meeting all conditions
         filtered = dfStats[dfStats['final_momentum']].sort_values('Rank', ascending=True)
-
-        #*******************************
-        # Define GitHub storage path
-        storage_path = "momentum_output.csv"
-        
-        # Save the filtered momentum ranking output
-        filtered.to_csv(storage_path, index=False)
-        
-        # ✅ Step 2: GitHub Secret se PAT Token Le
-        GITHUB_PAT = os.getenv("GITHUB_PAT")
-        REPO_URL = f"https://x-access-token:{GITHUB_PAT}@github.com/prayan2702/Streamlit-momn.git"
-        
-        # ✅ Step 3: Git Commands Execute Karein
-        os.system("git config --global user.email 'gavel.rajesh@gmail.com'")
-        os.system("git config --global user.name 'GitHub Actions'")
-        os.system("git add momentum_output.csv")
-        os.system("git commit -m 'Auto-update: Latest momentum ranking output' || echo 'No changes to commit'")
-        os.system(f"git remote set-url origin {REPO_URL}")  # Remote URL Update Karein
-        os.system("git push origin main")  # Git Push Karein
-
-        
-        #*******************************
+    
         st.info("Filtered Data:")
         st.write(filtered)
     
