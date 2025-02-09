@@ -547,20 +547,17 @@ def app_content():
         # Save the filtered momentum ranking output
         filtered.to_csv(storage_path, index=False)
         
-        # GitHub repository details
-        GITHUB_REPO = "https://github.com/prayan2702/Streamlit-momn.git"
-        GITHUB_BRANCH = "main"  # Change if needed
-        COMMIT_MESSAGE = "Auto-update: Latest momentum ranking output"
+        # ✅ Step 2: GitHub Secret se PAT Token Le
+        GITHUB_PAT = os.getenv("GITHUB_PAT")
+        REPO_URL = f"https://x-access-token:{GITHUB_PAT}@github.com/prayan2702/Streamlit-momn.git"
         
-        try:
-            subprocess.run(["git", "config", "--global", "user.email", "gavel.rajesh@gmail.com"], check=True)
-            subprocess.run(["git", "config", "--global", "user.name", "GitHub Actions"], check=True)
-            subprocess.run(["git", "add", storage_path], check=True)
-            subprocess.run(["git", "commit", "-m", COMMIT_MESSAGE], check=True)
-            subprocess.run(["git", "push", GITHUB_REPO, GITHUB_BRANCH], check=True)
-            st.success("Latest output saved to GitHub!")
-        except Exception as e:
-            st.error(f"Error saving output to GitHub: {e}")
+        # ✅ Step 3: Git Commands Execute Karein
+        os.system("git config --global user.email 'gavel.rajesh@gmail.com'")
+        os.system("git config --global user.name 'GitHub Actions'")
+        os.system("git add momentum_output.csv")
+        os.system("git commit -m 'Auto-update: Latest momentum ranking output' || echo 'No changes to commit'")
+        os.system(f"git remote set-url origin {REPO_URL}")  # Remote URL Update Karein
+        os.system("git push origin main")  # Git Push Karein
 
         
         #*******************************
