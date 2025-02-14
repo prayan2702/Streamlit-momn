@@ -145,12 +145,12 @@ def app_content():
     warnings.simplefilter(action='ignore', category=FutureWarning)
 
     ranking_options = {
+        "AvgZScore 12M/6M/3M": "avgZScore12_6_3",  # New ranking method
         "AvgSharpe 12M/6M/3M": "avgSharpe12_6_3",
         "AvgSharpe 9M/6M/3M": "avgSharpe9_6_3",
         "AvgSharpe 12M/9M/6M/3M": "avg_All",
         "Sharpe12M": "sharpe12M",
-        "Sharpe3M": "sharpe3M",
-        "AvgZScore 12M/6M/3M": "avgZScore12_6_3"  # New ranking method
+        "Sharpe3M": "sharpe3M"        
     }
 
     ranking_method_display = st.selectbox(
