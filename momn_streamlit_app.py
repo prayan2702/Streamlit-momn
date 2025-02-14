@@ -134,10 +134,10 @@ def app_content():
         return beta
 
     def calculate_z_score(data):
-    mean = data.mean()
-    std = data.std()
-    z_score = (data - mean) / std
-    return z_score
+        mean = data.mean()
+        std = data.std()
+        z_score = (data - mean) / std
+        return z_score
 
     st.title("Momentum Ranking App")
 
