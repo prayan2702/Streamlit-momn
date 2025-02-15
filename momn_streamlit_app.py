@@ -489,8 +489,14 @@ def app_content():
             dfStats['avgSharpe9_6_3'] = dfStats['avgSharpe9_6_3'].replace([np.inf, -np.inf], np.nan).fillna(0)
         elif ranking_method == "avgZScore12_6_3":  # New handling for Z-score ranking
             dfStats['avgZScore12_6_3'] = dfStats['avgZScore12_6_3'].replace([np.inf, -np.inf], np.nan).fillna(0)
-        dfStats['sharpe12M'] = dfStats['sharpe12M'].replace([np.inf, -np.inf], np.nan).fillna(0)
-        dfStats['sharpe3M'] = dfStats['sharpe3M'].replace([np.inf, -np.inf], np.nan).fillna(0)
+        # dfStats['sharpe12M'] = dfStats['sharpe12M'].replace([np.inf, -np.inf], np.nan).fillna(0)
+        # dfStats['sharpe3M'] = dfStats['sharpe3M'].replace([np.inf, -np.inf], np.nan).fillna(0)
+
+        for column in ['sharpe12M', 'sharpe9M', 'sharpe6M', 'sharpe3M']:
+            dfStats[column] = dfStats[column].replace([np.inf, -np.inf], np.nan).fillna(0)
+
+        for column in ['z_score12M', 'z_score9M', 'z_score6M', 'z_score3M']:
+            dfStats[column] = dfStats[column].replace([np.inf, -np.inf], np.nan).fillna(0)
     
         # Add Rank column based on 'avgSharpe' and sort by Rank
         # dfStats['Rank'] = dfStats[ranking_method].rank(ascending=False,method='first').astype(int)
