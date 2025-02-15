@@ -512,52 +512,16 @@ def app_content():
             dfStats = dfStats.sort_values(by=[ranking_method, 'roc3M'], ascending=[False, False])
 
         #********************************************
-        # Sort by primary(ranking_method) and secondary columns(roc12M) for ensuring stock does not have 12m data would be placed at bottom on ranking
-        # Conditional logic for sorting
-        if ranking_method in ["avg_All", "sharpe12M"]:
-            # Sort by ranking_method and roc12M, but push missing roc12M values to the bottom
-            dfStats = dfStats.sort_values(
-                by=[ranking_method], 
-                ascending=[False]
-            ).sort_values(
-                by=['roc12M'], 
-                ascending=[False], 
-                na_position='last',  # Missing roc12M values will be placed at the bottom
-                kind='mergesort'  # Stable sort to maintain the order of ranking_method
-            )
-        elif ranking_method in ["avgSharpe12_6_3", "sharpe3M"]:
-            # Sort by ranking_method and roc3M, but push missing roc12M values to the bottom
-            dfStats = dfStats.sort_values(
-                by=[ranking_method], 
-                ascending=[False]
-            ).sort_values(
-                by=['roc12M'], 
-                ascending=[False], 
-                na_position='last',  # Missing roc12M values will be placed at the bottom
-                kind='mergesort'  # Stable sort to maintain the order of ranking_method
-            )
-        elif ranking_method == "avgSharpe9_6_3":
-            # Sort by ranking_method and roc6M, but push missing roc12M values to the bottom
-            dfStats = dfStats.sort_values(
-                by=[ranking_method], 
-                ascending=[False]
-            ).sort_values(
-                by=['roc12M'], 
-                ascending=[False], 
-                na_position='last',  # Missing roc12M values will be placed at the bottom
-                kind='mergesort'  # Stable sort to maintain the order of ranking_method
-            )
-        elif ranking_method == "avgZScore12_6_3":
-            # Sort by ranking_method and roc3M, but push missing roc12M values to the bottom
-            dfStats = dfStats.sort_values(
-                by=[ranking_method], 
-                ascending=[False]
-            ).sort_values(
-                by=['roc12M'], 
-                ascending=[False], 
-                na_position='last',  # Missing roc12M values will be placed at the bottom
-                kind='mergesort'  # Stable sort to maintain the order of ranking_method
-            )
+        # Sort by ranking_method, but push missing roc12M values to the bottom
+        def custom_sort_key(row):
+            # If roc12M is missing, return a very high value to push it to the bottom
+            if pd.isna(row['roc12M']) or row['roc12M'] == 0:
+                return float('inf')  # Push missing values to the bottom
+            else:
+                return -row[ranking_method]  # Sort by ranking_method in descending order
+        
+        # Apply sorting using the custom key
+        dfStats = dfStats.sort_values(by='roc12M', key=custom_sort_key)
         #*************************************
            
         # Assign unique ranks based on the sorted order
