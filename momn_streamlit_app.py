@@ -512,18 +512,7 @@ def app_content():
             dfStats = dfStats.sort_values(by=[ranking_method, 'roc3M'], ascending=[False, False])
 
         #********************************************
-        # Sort by ranking_method, but push missing roc12M values to the bottom
-        def custom_sort_key(row):
-            # If roc12M is missing, return a very high value to push it to the bottom
-            if pd.isna(row['roc12M']) or row['roc12M'] == 0:
-                return float('inf')  # Push missing values to the bottom
-            else:
-                return -row[ranking_method]  # Sort by ranking_method in descending order
-        
-        # Apply sorting using the custom key
-        dfStats = dfStats.sort_values(by='roc12M', key=custom_sort_key)
-        #*************************************
-           
+
         # Assign unique ranks based on the sorted order
         dfStats['Rank'] = range(1, len(dfStats) + 1)
     
