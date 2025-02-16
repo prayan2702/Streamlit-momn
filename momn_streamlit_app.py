@@ -516,7 +516,7 @@ def app_content():
         elif ranking_method == "avgZScore12_6_3":  # New sorting rule for Z-score ranking
             dfStats = dfStats.sort_values(by=[ranking_method, 'roc3M'], ascending=[False, False])
         elif ranking_method == "avgZScore12_9_6_3":  # New sorting rule for Z-score ranking
-    dfStats = dfStats.sort_values(by=[ranking_method, 'roc6M'], ascending=[False, False])
+            dfStats = dfStats.sort_values(by=[ranking_method, 'roc6M'], ascending=[False, False])
 
         #********************************************
 
