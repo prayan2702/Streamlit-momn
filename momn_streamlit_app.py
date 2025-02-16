@@ -146,6 +146,7 @@ def app_content():
 
     ranking_options = {
         "AvgZScore 12M/6M/3M": "avgZScore12_6_3",  # New ranking method
+        "AvgZScore 12M/9M/6M/3M": "avgZScore12_9_6_3",
         "AvgSharpe 12M/6M/3M": "avgSharpe12_6_3",
         "AvgSharpe 9M/6M/3M": "avgSharpe9_6_3",
         "AvgSharpe 12M/9M/6M/3M": "avg_All",
@@ -454,6 +455,8 @@ def app_content():
             dfStats['avgSharpe9_6_3'] = dfStats[columns_avgSharpe9_6_3].mean(axis=1).round(2)
         elif ranking_method == "avgZScore12_6_3":  # New logic for Z-score ranking
             dfStats['avgZScore12_6_3'] = dfStats[['z_score12M', 'z_score6M', 'z_score3M']].mean(axis=1).round(2)
+        elif ranking_method == "avgZScore12_9_6_3":
+            dfStats['avgZScore12_9_6_3'] = dfStats[['z_score12M', 'z_score9M', 'z_score6M', 'z_score3M']].mean(axis=1).round(2)
 
         # ******************************************
     
@@ -494,7 +497,9 @@ def app_content():
         elif ranking_method == "avgSharpe9_6_3":  # New handling
             dfStats['avgSharpe9_6_3'] = dfStats['avgSharpe9_6_3'].replace([np.inf, -np.inf], np.nan).fillna(0)
         elif ranking_method == "avgZScore12_6_3":  # New handling for Z-score ranking
-            dfStats['avgZScore12_6_3'] = dfStats['avgZScore12_6_3'].replace([np.inf, -np.inf], np.nan).fillna(0)        
+            dfStats['avgZScore12_6_3'] = dfStats['avgZScore12_6_3'].replace([np.inf, -np.inf], np.nan).fillna(0)
+        elif ranking_method == "avgZScore12_9_6_3":  # New handling for Z-score ranking
+            dfStats['avgZScore12_9_6_3'] = dfStats['avgZScore12_9_6_3'].replace([np.inf, -np.inf], np.nan).fillna(0)
     
         # Add Rank column based on 'avgSharpe' and sort by Rank
         # dfStats['Rank'] = dfStats[ranking_method].rank(ascending=False,method='first').astype(int)
@@ -510,6 +515,8 @@ def app_content():
             dfStats = dfStats.sort_values(by=[ranking_method, 'roc6M'], ascending=[False, False])
         elif ranking_method == "avgZScore12_6_3":  # New sorting rule for Z-score ranking
             dfStats = dfStats.sort_values(by=[ranking_method, 'roc3M'], ascending=[False, False])
+        elif ranking_method == "avgZScore12_9_6_3":  # New sorting rule for Z-score ranking
+    dfStats = dfStats.sort_values(by=[ranking_method, 'roc6M'], ascending=[False, False])
 
         #********************************************
 
