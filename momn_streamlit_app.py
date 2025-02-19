@@ -210,7 +210,7 @@ def app_content():
     def download_chunk_with_retries(symbols, start_date, max_retries=3, delay=2):
         for attempt in range(max_retries):
             try:
-                return yf.download(symbols, start=start_date, progress=False, multi_level_index=False)
+                return yf.download(symbols, start=start_date, progress=False, progress=False, auto_adjust = True, threads = True, multi_level_index=False)
             except Exception as e:
                 if attempt < max_retries - 1:
                     time.sleep(delay)
