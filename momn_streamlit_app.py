@@ -1,6 +1,7 @@
 #V6.0: added login page so indentation altered for whole code
 #V7.0: added Reason for exit after portfolio rebalancing
 #V8.0: added failed stock download List by analyzing volm_cr column blank
+#V9.0: removed cond8 "1-month ROC to 12-month ROC ratio less than 50% (roc1M / roc12M * 100 < 50)"
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -357,7 +358,7 @@ def app_content():
             "Number of circuit hits in a year less than 20 (circuit < 20)",
             "Stock is within 25% of its all-time high (AWAY_ATH > -25)",
             "12-month return less than 10x (roc12M < 1000)",
-            "1-month ROC to 12-month ROC ratio less than 50% (roc1M / roc12M * 100 < 50)",
+            # "1-month ROC to 12-month ROC ratio less than 50% (roc1M / roc12M * 100 < 50)",  #commented
             "Closing price above ₹30 (Close > 30)",
             "No more than 10 circuits of 5% in the last 3 months (circuit5 <= 10)",
         ]
@@ -538,12 +539,12 @@ def app_content():
         cond5 = dfStats['circuit'] < 20  # No. of circuit less than 20 (Additional added condition)
         cond6 = dfStats['AWAY_ATH'] > -25  # Away from All Time High within 25%
         cond7 = dfStats['roc12M'] < 1000  # 12M return less than 10x and atleast 12M trading required
-        cond8 = dfStats['roc1M'] / dfStats['roc12M'] * 100 < 50  # 1m ROC/12m ROC < 50%
+        #cond8 = dfStats['roc1M'] / dfStats['roc12M'] * 100 < 50  # 1m ROC/12m ROC < 50%
         cond9 = dfStats['Close'] > 30  # stock pricce above 30
         cond10 = dfStats['circuit5'] <= 10  # No. of 5% circuit in last 3 month should be less than 11 (newly added)
     
         # Create final momentum filter column
-        dfStats['final_momentum'] = cond1 & cond3 & cond4 & cond5 & cond6 & cond7 & cond8 & cond9 & cond10
+        dfStats['final_momentum'] = cond1 & cond3 & cond4 & cond5 & cond6 & cond7 & cond9 & cond10
     
         # *************************************
     
@@ -641,11 +642,11 @@ def app_content():
                     ws.cell(row=row, column=col_indices['circuit']).fill = no_condition_fill
                     ws.cell(row=row, column=col_indices['circuit']).font = bold_font
                     condition_failed = True
-                if (roc1M := ws.cell(row=row, column=col_indices['roc1M']).value) is not None and roc12M and roc12M != 0:
-                    if roc1M / roc12M * 100 >= 50:
-                        ws.cell(row=row, column=col_indices['roc1M']).fill = no_condition_fill
-                        ws.cell(row=row, column=col_indices['roc1M']).font = bold_font
-                        condition_failed = True
+                # if (roc1M := ws.cell(row=row, column=col_indices['roc1M']).value) is not None and roc12M and roc12M != 0:
+                #     if roc1M / roc12M * 100 >= 50:
+                #         ws.cell(row=row, column=col_indices['roc1M']).fill = no_condition_fill
+                #         ws.cell(row=row, column=col_indices['roc1M']).font = bold_font
+                #         condition_failed = True
                 if close is not None and close <= 30:
                     ws.cell(row=row, column=col_indices['Close']).fill = no_condition_fill
                     ws.cell(row=row, column=col_indices['Close']).font = bold_font
@@ -884,8 +885,8 @@ def app_content():
                                 reasons.append("Away from ATH <= -25%")
                             if stock_data['roc12M'].values[0] >= 1000:
                                 reasons.append("12M ROC >= 1000%")
-                            if (stock_data['roc1M'].values[0] / stock_data['roc12M'].values[0] * 100) >= 50:
-                                reasons.append("1M ROC / 12M ROC >= 50%")
+                            # if (stock_data['roc1M'].values[0] / stock_data['roc12M'].values[0] * 100) >= 50:
+                            #     reasons.append("1M ROC / 12M ROC >= 50%")
                             if stock_data['Close'].values[0] <= 30:
                                 reasons.append("Close <= 30")
                             if stock_data['circuit5'].values[0] > 10:
