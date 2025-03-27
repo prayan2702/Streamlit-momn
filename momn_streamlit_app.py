@@ -1,7 +1,7 @@
 #V6.0: added login page so indentation altered for whole code
 #V7.0: added Reason for exit after portfolio rebalancing
 #V8.0: added failed stock download List by analyzing volm_cr column blank
-#V9.0: removed cond8 "1-month ROC to 12-month ROC ratio less than 50% (roc1M / roc12M * 100 < 50)"
+#V9.0: removed(commented) cond8 "1-month ROC to 12-month ROC ratio less than 50% (roc1M / roc12M * 100 < 50)"
 import streamlit as st
 import pandas as pd
 import numpy as np
