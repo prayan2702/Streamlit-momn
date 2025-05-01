@@ -65,9 +65,6 @@ def login():
 
 # Main app content function
 def app_content():
-    # एप्लिकेशन शुरू होते ही पैच लगाएं
-    yfinance_cookie_patch.patch_yfinance()
-
     @st.cache_data(ttl=0)  # Caching har baar bypass hoga
     def getMedianVolume(data):
         return(round(data.median(),0))
