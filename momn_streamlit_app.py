@@ -17,26 +17,24 @@ from openpyxl.styles.borders import Border, Side
 from openpyxl import load_workbook
 from json.decoder import JSONDecodeError
 #******************
-from curl_cffi import requests as curl_requests
+from requests import Session
 from requests.cookies import create_cookie
-import yfinance.data as yf_data
+import yfinance as yf
+import yfinance.shared as shared
 
 #***********************
-# यह कोड इम्पोर्ट्स के बाद और login() फंक्शन से पहले जोड़ें
-def _wrap_cookie(cookie, session):
-    if isinstance(cookie, str):
-        value = session.cookies.get(cookie)
-        return create_cookie(name=cookie, value=value)
-    return cookie
-
-def patch_yfdata_cookie_basic():
-    original = yf_data.YfData._get_cookie_basic
-
-    def _patched(self, timeout=30):
-        cookie = original(self, timeout)
-        return _wrap_cookie(cookie, self._session)
-
-    yf_data.YfData._get_cookie_basic = _patched
+def patch_yfinance():
+    # Create a custom session
+    session = Session()
+    session.headers.update({
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        'Accept': '*/*',
+        'Accept-Encoding': 'gzip, deflate',
+        'Connection': 'keep-alive'
+    })
+    
+    # Set the custom session in yfinance
+    yf.session.set_session(session)
 #****************************
 # Hard-coded credentials
 USERNAME = "prayan"
@@ -233,35 +231,28 @@ def app_content():
     def download_chunk_with_retries(symbols, start_date, max_retries=3, delay=2):
         for attempt in range(max_retries):
             try:
-                # curl_cffi सेशन बनाएं जो Chrome जैसा दिखे
-                session = curl_requests.Session(impersonate="chrome")
-                
-                # कस्टम सेशन के साथ डाउनलोड करें
                 data = yf.download(
                     symbols,
                     start=start_date,
                     progress=False,
                     auto_adjust=True,
-                    threads=True,
-                    session=session,  # हमारा कस्टम सेशन
-                    raise_errors=True  # असली एरर्स दिखाएं
+                    threads=False,  # Single-threaded for stability
+                    group_by='ticker'
                 )
                 return data
             except Exception as e:
                 if attempt < max_retries - 1:
-                    time.sleep(delay)
-                    delay *= 2  # एक्सपोनेंशियल बैकऑफ
+                    time.sleep(delay * (attempt + 1))  # Progressive delay
                 else:
-                    st.error(f"{symbols} डाउनलोड करने में असफल: {max_retries} कोशिशों के बाद भी: {str(e)}")
+                    st.error(f"Failed to download {symbols}: {str(e)}")
                     raise e
     
     # Track failed symbols
     failed_symbols = []
     
     if start_button:
-        # curl_cffi सेशन इनिशियलाइज़ करें
-        session = curl_requests.Session(impersonate="chrome")
-        yf.set_session(session)
+        # Apply the patch before downloading
+        patch_yfinance()
         # Download data when the button is pressed
         close = []
         high = []
