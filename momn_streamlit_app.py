@@ -16,8 +16,28 @@ from openpyxl.styles import PatternFill, Font, Alignment
 from openpyxl.styles.borders import Border, Side
 from openpyxl import load_workbook
 from json.decoder import JSONDecodeError
+#******************
+from curl_cffi import requests as curl_requests
+from requests.cookies import create_cookie
+import yfinance.data as yf_data
 
 #***********************
+# यह कोड इम्पोर्ट्स के बाद और login() फंक्शन से पहले जोड़ें
+def _wrap_cookie(cookie, session):
+    if isinstance(cookie, str):
+        value = session.cookies.get(cookie)
+        return create_cookie(name=cookie, value=value)
+    return cookie
+
+def patch_yfdata_cookie_basic():
+    original = yf_data.YfData._get_cookie_basic
+
+    def _patched(self, timeout=30):
+        cookie = original(self, timeout)
+        return _wrap_cookie(cookie, self._session)
+
+    yf_data.YfData._get_cookie_basic = _patched
+#****************************
 # Hard-coded credentials
 USERNAME = "prayan"
 PASSWORD = "prayan"
@@ -47,6 +67,8 @@ def login():
 
 # Main app content function
 def app_content():
+    # एप्लिकेशन शुरू होते ही पैच लगाएं
+    patch_yfdata_cookie_basic()
 
     @st.cache_data(ttl=0)  # Caching har baar bypass hoga
     def getMedianVolume(data):
@@ -207,22 +229,39 @@ def app_content():
     # Add a button to start the process
     start_button = st.button("Start Data Download")
     
-    # Function to download data with retries
+    # मौजूदा download_chunk_with_retries फंक्शन को हटाकर यह नया फंक्शन जोड़ें
     def download_chunk_with_retries(symbols, start_date, max_retries=3, delay=2):
         for attempt in range(max_retries):
             try:
-                return yf.download(symbols, start=start_date, progress=False, auto_adjust = True, threads = True, multi_level_index=False)
+                # curl_cffi सेशन बनाएं जो Chrome जैसा दिखे
+                session = curl_requests.Session(impersonate="chrome")
+                
+                # कस्टम सेशन के साथ डाउनलोड करें
+                data = yf.download(
+                    symbols,
+                    start=start_date,
+                    progress=False,
+                    auto_adjust=True,
+                    threads=True,
+                    session=session,  # हमारा कस्टम सेशन
+                    raise_errors=True  # असली एरर्स दिखाएं
+                )
+                return data
             except Exception as e:
                 if attempt < max_retries - 1:
                     time.sleep(delay)
-                    delay *= 2  # Double the delay for each retry
+                    delay *= 2  # एक्सपोनेंशियल बैकऑफ
                 else:
+                    st.error(f"{symbols} डाउनलोड करने में असफल: {max_retries} कोशिशों के बाद भी: {str(e)}")
                     raise e
     
     # Track failed symbols
     failed_symbols = []
     
     if start_button:
+        # curl_cffi सेशन इनिशियलाइज़ करें
+        session = curl_requests.Session(impersonate="chrome")
+        yf.set_session(session)
         # Download data when the button is pressed
         close = []
         high = []
