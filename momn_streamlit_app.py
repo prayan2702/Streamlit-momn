@@ -16,26 +16,8 @@ from openpyxl.styles import PatternFill, Font, Alignment
 from openpyxl.styles.borders import Border, Side
 from openpyxl import load_workbook
 from json.decoder import JSONDecodeError
-#******************
-from requests import Session
-from requests.cookies import create_cookie
-import yfinance as yf
-import yfinance.shared as shared
 
 #***********************
-def patch_yfinance():
-    # Create a custom session
-    session = Session()
-    session.headers.update({
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-        'Accept': '*/*',
-        'Accept-Encoding': 'gzip, deflate',
-        'Connection': 'keep-alive'
-    })
-    
-    # Set the custom session in yfinance
-    yf.session.set_session(session)
-#****************************
 # Hard-coded credentials
 USERNAME = "prayan"
 PASSWORD = "prayan"
@@ -65,6 +47,7 @@ def login():
 
 # Main app content function
 def app_content():
+
     @st.cache_data(ttl=0)  # Caching har baar bypass hoga
     def getMedianVolume(data):
         return(round(data.median(),0))
@@ -224,32 +207,22 @@ def app_content():
     # Add a button to start the process
     start_button = st.button("Start Data Download")
     
-    # मौजूदा download_chunk_with_retries फंक्शन को हटाकर यह नया फंक्शन जोड़ें
+    # Function to download data with retries
     def download_chunk_with_retries(symbols, start_date, max_retries=3, delay=2):
         for attempt in range(max_retries):
             try:
-                data = yf.download(
-                    symbols,
-                    start=start_date,
-                    progress=False,
-                    auto_adjust=True,
-                    threads=False,  # Single-threaded for stability
-                    group_by='ticker'
-                )
-                return data
+                return yf.download(symbols, start=start_date, progress=False, auto_adjust = True, threads = True, multi_level_index=False)
             except Exception as e:
                 if attempt < max_retries - 1:
-                    time.sleep(delay * (attempt + 1))  # Progressive delay
+                    time.sleep(delay)
+                    delay *= 2  # Double the delay for each retry
                 else:
-                    st.error(f"Failed to download {symbols}: {str(e)}")
                     raise e
     
     # Track failed symbols
     failed_symbols = []
     
     if start_button:
-        # Apply the patch before downloading
-        patch_yfinance()
         # Download data when the button is pressed
         close = []
         high = []
