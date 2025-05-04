@@ -799,18 +799,18 @@ def app_content():
         #     dfStats.to_excel(writer, sheet_name="Unfiltered Stocks", index=True)  # Unfiltered data
         #     filtered.to_excel(writer, sheet_name="Filtered Stocks", index=True)  # Filtered data
     
-        # Format the Unfiltered Excel file
-        format_excel(excel_file)
-        # Format the filtered sheet
-        format_filtered_excel(excel_file)
+        # # Format the Unfiltered Excel file
+        # format_excel(excel_file)
+        # # Format the filtered sheet
+        # format_filtered_excel(excel_file)
     
-        # Download button for the Excel file
-        st.download_button(
-            label="Download Stock Data as Excel",
-            data=open(excel_file, "rb").read(),
-            file_name=excel_file,
-            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-        )
+        # # Download button for the Excel file
+        # st.download_button(
+        #     label="Download Stock Data as Excel",
+        #     data=open(excel_file, "rb").read(),
+        #     file_name=excel_file,
+        #     mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        # )
     
         # **********************************************************
             
@@ -930,6 +930,11 @@ def app_content():
             if 'rebalance_table' in locals():
                 rebalance_table.reset_index(inplace=True)
                 rebalance_table.to_excel(writer, sheet_name='rebalance', index=False)
+                
+        # Format the Unfiltered Excel file
+        format_excel(excel_file)
+        # Format the filtered sheet
+        format_filtered_excel(excel_file)
         
         st.download_button(
             label="Download Excel File",
