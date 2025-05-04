@@ -791,192 +791,19 @@ def app_content():
     
     
         # ********************************************************
-        def format_rebalance_excel(file_name):
-            # Open the written file using openpyxl
-            wb = openpyxl.load_workbook(file_name)
-            ws = wb["Rebalance"]  # Specify the "Rebalance" sheet
-        
-            # Add Borders to All Cells
-            thin_border = Border(left=Side(style="thin"), right=Side(style="thin"), top=Side(style="thin"),
-                                 bottom=Side(style="thin"))
-        
-            for row in ws.iter_rows(min_row=1, max_row=ws.max_row, min_col=1, max_col=ws.max_column):
-                for cell in row:
-                    cell.border = thin_border
-                    cell.alignment = Alignment(horizontal="center", vertical="center")
-        
-            # Freeze the top row
-            ws.freeze_panes = 'A2'
-        
-            # Format headers
-            header_fill = PatternFill(start_color="00008B", end_color="00008B", fill_type="solid")  # Dark blue
-            header_font = Font(bold=True, color="FFFFFF")
-            header_alignment = Alignment(horizontal="center", vertical="center")
-        
-            for col in range(1, ws.max_column + 1):
-                cell = ws.cell(row=1, column=col)
-                cell.fill = header_fill
-                cell.font = header_font
-                cell.alignment = header_alignment
-        
-            # Automatically adjust column widths based on content
-            for col in ws.columns:
-                max_length = 0
-                for cell in col:
-                    if cell.value:
-                        max_length = max(max_length, len(str(cell.value)))
-                adjusted_width = max_length + 2
-                ws.column_dimensions[col[0].column_letter].width = adjusted_width
-        
-            # Highlight Sell and Buy stocks differently
-            sell_fill = PatternFill(start_color="FFC7CE", end_color="FFC7CE", fill_type="solid")  # Light red
-            buy_fill = PatternFill(start_color="C6EFCE", end_color="C6EFCE", fill_type="solid")   # Light green
-        
-            # Get column indices
-            headers = [cell.value for cell in ws[1]]
-            sell_col = headers.index("Sell Stocks") + 1
-            buy_col = headers.index("Buy Stocks") + 1
-            reason_col = headers.index("Reason for Exit") + 1
-        
-            # Apply formatting
-            for row in range(2, ws.max_row + 1):
-                # Format Sell Stocks column
-                sell_cell = ws.cell(row=row, column=sell_col)
-                if sell_cell.value:
-                    sell_cell.fill = sell_fill
-                
-                # Format Buy Stocks column
-                buy_cell = ws.cell(row=row, column=buy_col)
-                if buy_cell.value:
-                    buy_cell.fill = buy_fill
-                
-                # Format Reason for Exit column
-                reason_cell = ws.cell(row=row, column=reason_col)
-                if reason_cell.value:
-                    reason_cell.font = Font(bold=True)
-        
-            wb.save(file_name)
-            print("\nRebalance Excel sheet formatted.\n")
-    #*************************************************
-        # Assuming 'dfStats' has 'Rank' as the index and 'final_momentum' filter is applied
-        filtered = dfStats[dfStats['final_momentum']].sort_values('Rank', ascending=True)
-        
-        # Dynamically determine the rank threshold based on the universe
-        rank_threshold = 100 if U == 'AllNSE' else 75
-        
-        # Get the top ranks up to the dynamic threshold (either 75 or 100)
-        top_rank_tickers = filtered[filtered.index <= rank_threshold]['Ticker']
-        
-        # Fetch the current portfolio from the published CSV (Nifty50 Value)
-        portfolio_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS4HDgiell4n1kd08OnlzOQobfPzeDtVyWJ8gETFlYbz27qhOmfqKZOoIXZItRQEq5ANATYIcZJm0gk/pub?output=csv"
-        
-        
-        # Read portfolio data
-        portfolio_data = pd.read_csv(portfolio_url)
-    
-        # Check if 'Current Portfolio' column exists in the portfolio CSV
-        if 'Current Portfolio' not in portfolio_data.columns:
-            st.error("Column 'Current Portfolio' not found in the portfolio data.")
-        else:
-            # Assuming the portfolio has a 'Current Portfolio' column for holdings
-            current_portfolio_tickers = portfolio_data['Current Portfolio']
-    
-            # Find entry stocks (stocks in top ranks that are not in the current portfolio)
-            entry_stocks = top_rank_tickers[~top_rank_tickers.isin(current_portfolio_tickers)]
-    
-            # Find exit stocks (stocks in the current portfolio that are not in the top ranks)
-            exit_stocks = current_portfolio_tickers[~current_portfolio_tickers.isin(top_rank_tickers)]
-    
-            # Display results using Streamlit
-            st.info("Portfolio Rebalancing:")
-    
-            # Limit the number of buy (entry) stocks to match the number of sell (exit) stocks
-            num_sells = len(exit_stocks)
-            entry_stocks = entry_stocks.head(num_sells)  # Limit Buy tickers to the number of Sell tickers
-    
-            # If there are more sells than buys, fill the remaining buys with None or NaN
-            if len(entry_stocks) < num_sells:
-                # Use pd.concat to add None values to entry_stocks
-                entry_stocks = pd.concat([entry_stocks, pd.Series([None] * (num_sells - len(entry_stocks)))])
-    
-            # Create a list to store reasons for exit
-            reasons_for_exit = []
-    
-            # Check which conditions are not met for each exit stock
-            for ticker in exit_stocks:
-                if pd.isna(ticker) or ticker == "":  # If sell stock is None or blank, reason is blank
-                    reasons_for_exit.append("")
-                else:
-                    reasons = []
-                    stock_data = dfStats[dfStats['Ticker'] == ticker]
-                    if len(stock_data) > 0:
-                        # Check rank threshold condition
-                        if stock_data.index[0] > rank_threshold:
-                            reasons.append(f"Rank > {rank_threshold}")
-                        # Check other conditions
-                        if stock_data['volm_cr'].values[0] <= 1:
-                            reasons.append("Volume <= 1 crore")
-                        if stock_data['Close'].values[0] <= stock_data['dma200d'].values[0]:
-                            reasons.append("Close <= 200-day DMA")
-                        if stock_data['roc12M'].values[0] <= 6.5:
-                            reasons.append("12M ROC <= 6.5%")
-                        if stock_data['circuit'].values[0] >= 20:
-                            reasons.append("Circuit hits >= 20")
-                        if stock_data['AWAY_ATH'].values[0] <= -25:
-                            reasons.append("Away from ATH <= -25%")
-                        if stock_data['roc12M'].values[0] >= 1000:
-                            reasons.append("12M ROC >= 1000%")
-                        # if (stock_data['roc1M'].values[0] / stock_data['roc12M'].values[0] * 100) >= 50:
-                        #     reasons.append("1M ROC / 12M ROC >= 50%")
-                        if stock_data['Close'].values[0] <= 30:
-                            reasons.append("Close <= 30")
-                        if stock_data['circuit5'].values[0] > 10:
-                            reasons.append("5% Circuit hits > 10")
-                    else:
-                        # If the stock is not in the selected universe, add this reason
-                        reasons.append("Stock not in selected universe")
-                    reasons_for_exit.append(", ".join(reasons) if reasons else "")
-        
-                # Add blank reasons for rows where sell stocks are None or blank
-                reasons_for_exit.extend([""] * (len(entry_stocks) - len(reasons_for_exit)))
-        
-                # Create rebalance table
-                rebalance_table = pd.DataFrame({
-                    'S.No.': range(1, num_sells + 1),
-                    'Sell Stocks': exit_stocks.tolist(),
-                    'Buy Stocks': entry_stocks.tolist(),
-                    'Reason for Exit': reasons_for_exit
-                })
-        
-                # Remove rows where both 'Sell' and 'Buy' are None, but keep rows where only one is None
-                rebalance_table = rebalance_table[
-                    ~((rebalance_table['Sell Stocks'].isna()) & (rebalance_table['Buy Stocks'].isna()))]
-        
-                # Set 'S.No.' as the index
-                rebalance_table.set_index('S.No.', inplace=True)
-        
-                # Display rebalance table
-                st.dataframe(rebalance_table)
-        
-        # After the spinner ends, show success message
-        st.success("Portfolio Rebalancing completed!")
-        #************************************************
-       # Format the filename with the lookback date, universe, and other parameters
+        # Format the filename with the lookback date, universe, and other parameters
         excel_file = f"{selected_date.strftime('%Y-%m-%d')}_{U}_{ranking_method}_lookback.xlsx"
-        
-        # Save all data to Excel with three sheets
+    
+        # Save filtered data to Excel
         with pd.ExcelWriter(excel_file, engine="openpyxl") as writer:
             dfStats.to_excel(writer, sheet_name="Unfiltered Stocks", index=True)  # Unfiltered data
             filtered.to_excel(writer, sheet_name="Filtered Stocks", index=True)  # Filtered data
-            rebalance_table.to_excel(writer, sheet_name="Rebalance", index=True)  # Rebalance data
-        
+    
         # Format the Unfiltered Excel file
         format_excel(excel_file)
         # Format the filtered sheet
         format_filtered_excel(excel_file)
-        # Format the rebalance sheet
-        format_rebalance_excel(excel_file)
-        
+    
         # Download button for the Excel file
         st.download_button(
             label="Download Stock Data as Excel",
@@ -984,6 +811,7 @@ def app_content():
             file_name=excel_file,
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
+    
         # **********************************************************
             
         # Assuming 'dfStats' has 'Rank' as the index and 'final_momentum' filter is applied
