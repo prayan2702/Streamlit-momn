@@ -794,10 +794,10 @@ def app_content():
         # Format the filename with the lookback date, universe, and other parameters
         excel_file = f"{selected_date.strftime('%Y-%m-%d')}_{U}_{ranking_method}_lookback.xlsx"
     
-        # Save filtered data to Excel
-        with pd.ExcelWriter(excel_file, engine="openpyxl") as writer:
-            dfStats.to_excel(writer, sheet_name="Unfiltered Stocks", index=True)  # Unfiltered data
-            filtered.to_excel(writer, sheet_name="Filtered Stocks", index=True)  # Filtered data
+        # # Save filtered data to Excel
+        # with pd.ExcelWriter(excel_file, engine="openpyxl") as writer:
+        #     dfStats.to_excel(writer, sheet_name="Unfiltered Stocks", index=True)  # Unfiltered data
+        #     filtered.to_excel(writer, sheet_name="Filtered Stocks", index=True)  # Filtered data
     
         # Format the Unfiltered Excel file
         format_excel(excel_file)
@@ -919,6 +919,24 @@ def app_content():
         
         # After the spinner ends, show success message
         st.success("Portfolio Rebalancing completed!")
+
+        # --- Excel Download Part ---
+        buffer = io.BytesIO()
+        with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
+            dfUnfiltered.to_excel(writer, sheet_name='unfiltered', index=False)
+            dfFiltered.to_excel(writer, sheet_name='filtered', index=False)
+        
+            # Add Rebalance sheet
+            if 'rebalance_table' in locals():
+                rebalance_table.reset_index(inplace=True)
+                rebalance_table.to_excel(writer, sheet_name='rebalance', index=False)
+        
+        st.download_button(
+            label="Download Excel File",
+            data=buffer.getvalue(),
+            file_name="portfolio_analysis.xlsx",
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
     # ***************************************************************
 if not st.session_state.logged_in:
     login()
