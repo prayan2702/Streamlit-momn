@@ -791,19 +791,89 @@ def app_content():
     
     
         # ********************************************************
-        # Format the filename with the lookback date, universe, and other parameters
+        def format_rebalance_excel(file_name):
+            # Open the written file using openpyxl
+            wb = openpyxl.load_workbook(file_name)
+            ws = wb["Rebalance"]  # Specify the "Rebalance" sheet
+        
+            # Add Borders to All Cells
+            thin_border = Border(left=Side(style="thin"), right=Side(style="thin"), top=Side(style="thin"),
+                                 bottom=Side(style="thin"))
+        
+            for row in ws.iter_rows(min_row=1, max_row=ws.max_row, min_col=1, max_col=ws.max_column):
+                for cell in row:
+                    cell.border = thin_border
+                    cell.alignment = Alignment(horizontal="center", vertical="center")
+        
+            # Freeze the top row
+            ws.freeze_panes = 'A2'
+        
+            # Format headers
+            header_fill = PatternFill(start_color="00008B", end_color="00008B", fill_type="solid")  # Dark blue
+            header_font = Font(bold=True, color="FFFFFF")
+            header_alignment = Alignment(horizontal="center", vertical="center")
+        
+            for col in range(1, ws.max_column + 1):
+                cell = ws.cell(row=1, column=col)
+                cell.fill = header_fill
+                cell.font = header_font
+                cell.alignment = header_alignment
+        
+            # Automatically adjust column widths based on content
+            for col in ws.columns:
+                max_length = 0
+                for cell in col:
+                    if cell.value:
+                        max_length = max(max_length, len(str(cell.value)))
+                adjusted_width = max_length + 2
+                ws.column_dimensions[col[0].column_letter].width = adjusted_width
+        
+            # Highlight Sell and Buy stocks differently
+            sell_fill = PatternFill(start_color="FFC7CE", end_color="FFC7CE", fill_type="solid")  # Light red
+            buy_fill = PatternFill(start_color="C6EFCE", end_color="C6EFCE", fill_type="solid")   # Light green
+        
+            # Get column indices
+            headers = [cell.value for cell in ws[1]]
+            sell_col = headers.index("Sell Stocks") + 1
+            buy_col = headers.index("Buy Stocks") + 1
+            reason_col = headers.index("Reason for Exit") + 1
+        
+            # Apply formatting
+            for row in range(2, ws.max_row + 1):
+                # Format Sell Stocks column
+                sell_cell = ws.cell(row=row, column=sell_col)
+                if sell_cell.value:
+                    sell_cell.fill = sell_fill
+                
+                # Format Buy Stocks column
+                buy_cell = ws.cell(row=row, column=buy_col)
+                if buy_cell.value:
+                    buy_cell.fill = buy_fill
+                
+                # Format Reason for Exit column
+                reason_cell = ws.cell(row=row, column=reason_col)
+                if reason_cell.value:
+                    reason_cell.font = Font(bold=True)
+        
+            wb.save(file_name)
+            print("\nRebalance Excel sheet formatted.\n")
+    #*************************************************
+       # Format the filename with the lookback date, universe, and other parameters
         excel_file = f"{selected_date.strftime('%Y-%m-%d')}_{U}_{ranking_method}_lookback.xlsx"
-    
-        # Save filtered data to Excel
+        
+        # Save all data to Excel with three sheets
         with pd.ExcelWriter(excel_file, engine="openpyxl") as writer:
             dfStats.to_excel(writer, sheet_name="Unfiltered Stocks", index=True)  # Unfiltered data
             filtered.to_excel(writer, sheet_name="Filtered Stocks", index=True)  # Filtered data
-    
+            rebalance_table.to_excel(writer, sheet_name="Rebalance", index=True)  # Rebalance data
+        
         # Format the Unfiltered Excel file
         format_excel(excel_file)
         # Format the filtered sheet
         format_filtered_excel(excel_file)
-    
+        # Format the rebalance sheet
+        format_rebalance_excel(excel_file)
+        
         # Download button for the Excel file
         st.download_button(
             label="Download Stock Data as Excel",
@@ -811,7 +881,6 @@ def app_content():
             file_name=excel_file,
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
-    
         # **********************************************************
             
         # Assuming 'dfStats' has 'Rank' as the index and 'final_momentum' filter is applied
