@@ -923,7 +923,7 @@ def app_content():
 
         # --- Excel Download Part ---
         buffer = io.BytesIO()
-        with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
+        with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
             dfUnfiltered.to_excel(writer, sheet_name='unfiltered', index=False)
             dfFiltered.to_excel(writer, sheet_name='filtered', index=False)
         
