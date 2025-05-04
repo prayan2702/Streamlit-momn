@@ -905,28 +905,28 @@ def app_content():
             except Exception as e:
                 st.error(f"Error loading portfolio data: {str(e)}")
             # Excel Operations (inside spinner)
-            with st.spinner("Generating Excel Report..."):
-                excel_file = f"{selected_date.strftime('%Y-%m-%d')}_{U}_{ranking_method}_lookback.xlsx"
-                
-                with pd.ExcelWriter(excel_file, engine="openpyxl") as writer:
-                    dfStats.to_excel(writer, sheet_name="Unfiltered Stocks", index=True)
-                    filtered.to_excel(writer, sheet_name="Filtered Stocks", index=True)
-                    if rebalance_table is not None:
-                        rebalance_table.to_excel(writer, sheet_name="Rebalance", index=True)
-                
-                # Format the Excel file
-                format_excel(excel_file)
-                format_filtered_excel(excel_file)
-                if rebalance_table is not None:
-                    format_rebalance_excel(excel_file)
-                
-                st.download_button(
-                    label="Download Stock Data as Excel",
-                    data=open(excel_file, "rb").read(),
-                    file_name=excel_file,
-                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                )
+           
+            excel_file = f"{selected_date.strftime('%Y-%m-%d')}_{U}_{ranking_method}_lookback.xlsx"
             
+            with pd.ExcelWriter(excel_file, engine="openpyxl") as writer:
+                dfStats.to_excel(writer, sheet_name="Unfiltered Stocks", index=True)
+                filtered.to_excel(writer, sheet_name="Filtered Stocks", index=True)
+                if rebalance_table is not None:
+                    rebalance_table.to_excel(writer, sheet_name="Rebalance", index=True)
+            
+            # Format the Excel file
+            format_excel(excel_file)
+            format_filtered_excel(excel_file)
+            if rebalance_table is not None:
+                format_rebalance_excel(excel_file)
+            
+            st.download_button(
+                label="Download Stock Data as Excel",
+                data=open(excel_file, "rb").read(),
+                file_name=excel_file,
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            )
+        
             st.success("Process completed successfully!")
     
         # **********************************************************
