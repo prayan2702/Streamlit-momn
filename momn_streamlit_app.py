@@ -16,6 +16,7 @@ from openpyxl.styles import PatternFill, Font, Alignment
 from openpyxl.styles.borders import Border, Side
 from openpyxl import load_workbook
 from json.decoder import JSONDecodeError
+import io
 
 #***********************
 # Hard-coded credentials
