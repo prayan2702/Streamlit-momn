@@ -47,7 +47,6 @@ def login():
 
 # Main app content function
 def app_content():
-
     @st.cache_data(ttl=0)  # Caching har baar bypass hoga
     def getMedianVolume(data):
         return(round(data.median(),0))
